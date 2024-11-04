@@ -1,0 +1,317 @@
+.main-services {
+	margin: calc(56px + 29px) 9px 29px calc(270px + 29px);
+    padding: 0px 20px 20px 20px;
+    width: 100%;
+}
+
+.services {
+    background-color: #fff;
+    padding: 30px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 20px;
+    color: #000;
+}
+
+.services_header{
+    background-color: #242424;
+    width: 100%;
+    height: 41px;
+    top: calc(60px + 29px);
+    z-index: 1;
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.services__title {
+    font-size: 24px;
+    color: #ffffff;
+    padding-top: 1px;
+}
+
+.services__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.services__table thead  {
+    border-bottom: 2px solid #333; 
+}
+
+.services__table thead th {
+    border-top: none;
+}
+
+.services__table th,
+.services__table td {
+    padding: 20px;
+    text-align: left;
+    border-left: none; 
+    border-right: none;
+}
+
+.services__table th {
+
+    font-weight: bold;
+    font-size: 25px;
+    padding-bottom: 10px;
+}
+
+.services__table td {
+    font-weight: 400;
+    color: #000;
+}
+
+.services__table tbody tr{
+    border-bottom: 1px solid #ccc;
+}
+
+.service{
+    border-bottom: 1px solid #ccc;
+}
+
+.service__actions {
+    display: flex;
+    gap: 10px;
+    border: none;
+    align-items: center; 
+    justify-content: flex-start;
+}
+
+.service__button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.service__button--settings {
+    background-color: #398467;
+    color: #fff;
+    border-radius: 5px;
+	width: 154px;
+	height: 44px;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 20px;
+	font-weight: normal;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#th-add-button{
+    padding: 0;
+    margin: 0;
+}
+.service__button--add{
+    background-color: transparent;
+
+}
+
+.service__button--add img{
+    width: 38px;
+    height: 38px;
+
+}
+.service__button--settings:hover {
+    background-color: #2f6d57;
+}
+
+.service__button--settings:active {
+    background-color: #1f4b3a;
+    transform: scale(0.95);
+}
+
+.service__button--delete {
+    background-color: rgba(0, 0, 0, 0); 
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.service__button--delete  img{
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.service__button--delete:active {
+    transform: scale(0.9); 
+}
+
+.service__button--delete:hover {
+    transform: scale(0.9); 
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-header {
+    background-color: #242424; 
+    color: #ffffff;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    padding: 0px 20px;
+    margin: -20px -20px 10px -20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    height: 35px;
+    position: relative; 
+}
+
+.modal-header h2{
+    font-size: 20px;
+
+}
+.modal-content {
+    background-color: #ffffff; 
+    padding: 20px;
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+.modal-content td {
+    font-size: 16px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc; 
+}
+
+.modal-content td:first-child {
+    font-weight: 500;
+}
+
+.modal-content td:first-child {
+    font-size: 20px;
+    padding: 10px;
+}
+
+.modal-content td img {
+    cursor: pointer;
+}
+
+.modal-content td span[contenteditable="true"] {
+    border: 1px solid #ccc;
+    padding: 5px;
+    background-color: #f9f9f9;
+}
+
+
+.modal-content td span[contenteditable="false"] {
+    border: none;
+    background-color: transparent;
+}
+
+.edit-icon {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+}
+
+.edit-icon:hover {
+    transform: scale(0.9);
+}
+
+#saveSettings{
+    border: 0;
+    width: 120px;
+    height: 42px;
+    background-color: #398467;
+    color: white;
+    font-family: 'Montserrat';
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#saveSettings:hover {
+    background-color: #2f6d57;
+}
+
+#saveSettings:active {
+    background-color: #1f4b3a;
+    transform: scale(0.95);
+}
+
+.close {
+    position: absolute; 
+    right: 10px; 
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #7e7e7e;
+}
+
+#saveNewService{
+    border: 0;
+    width: 150px;
+    height: 42px;
+    background-color: #398467;
+    color: white;
+    font-family: 'Montserrat';
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+.service__button--add{
+    transition: transform 0.2s ease;
+}
+.service__button--add:hover{
+    transform: scale(0.9);
+}
+
+#saveNewService:hover {
+    background-color: #2f6d57;
+}
+
+.newService_input{
+    border: none;
+    background-color: #e2e2e2;
+    font-size: 18px;
+    width: 96%; 
+    padding: 10px;
+    border-radius: 4px;
+}
+
+
+@media (max-width: 1380px){
+    .main-services{
+        margin: 46px 0px 29px calc(228px + 29px);
+    }
+    .services{
+        padding: 20px;
+        padding-top: 5px;
+    }
+
+    #mastersTableBody{
+        font-size: 18px;
+    }
+    .masters-table {
+        width: 90%;
+    }
+    .masters-table th, .masters-table td{
+        padding: 10px;
+    }
+}

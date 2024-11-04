@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="img/favicon/site.webmanifest">
+    <script defer src="js/auth.js"></script>
+</head>
+
+<body class="page">
+    <script>
+        if (localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+    <header class="header">
+        <div class="header__top">
+            <img class="header__icon" src="img/logo.svg">
+            <h1 class="header__title">Админ-панель "Бородатый Гуру"</h1>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="auth_header">
+            <h2 class="auth__title">Авторизация</h2>
+        </div>
+        <section class="auth">
+            <form class="auth_form" id="authForm">
+                <div class="auth_item">
+                    <img src="img/login.svg" alt="login" class="auth_icon">
+                    <input type="text" id="username" placeholder="Логин" required>
+                </div>
+                <div class="auth_item">
+                    <img src="img/password.svg" alt="password" class="auth_icon">
+                    <input type="password" id="password" placeholder="Пароль" required>
+                </div>
+                <div class="error" id="authError"></div>
+                <button type="submit" class="auth_button">Авторизоваться</button>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>

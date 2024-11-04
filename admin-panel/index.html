@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель "Бородатый Гуру"</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="img/favicon/site.webmanifest">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/service.css">
+    <link rel="stylesheet" href="css/masters.css">
+    <link rel="stylesheet" href="css/records.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/calendar.css">
+    <script defer type="module" src="js/main.js"></script>
+    <!-- Календарь -->
+    <script src="https://cdn.jsdelivr.net/npm/color-calendar@1.0.5/dist/bundle.js"></script>
+
+    <link rel="stylesheet" href="css/calendar/theme-basic.css">
+    <link rel="stylesheet" href="css/calendar/theme-glass.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+</head>
+
+<body class="page">
+    <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'auth.html';
+        }
+    </script>
+    
+    <header class="header">
+        <div class="header__top">
+            <img class="header__icon" src="img/logo.svg">
+            <h1 class="header__title">Админ-панель "Бородатый Гуру"</h1>
+        </div>
+        <div class="header__login">
+            <img class="header__login-icon" src="img/avatar2.png" alt="User Icon">
+            <span class="header__login-text">Username</span>
+            <button class="header__arrow-button" id="dropdownButton">
+                <img src="img/arrow-down.svg" alt="Arrow Down">
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <ul>
+                    <li><a href="auth.html" id="logoutLink">Выйти <img src="img/log-out.svg" alt=""></a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar__user">
+                <img class="sidebar__avatar" src="img/avatar.png" alt="User Avatar">
+                <div class="sidebar__user-info">
+                    <span class="sidebar__username">Username</span>
+                    <span class="sidebar__role">Admin</span>
+                </div>
+            </div>
+            
+            <ul class="sidebar__menu">
+                <li class="sidebar__title">
+                    <p class="sidebar__text">Меню</p>
+                </li>
+                <li class="sidebar__item">
+                    <a href="#" class="sidebar__link" data-icon="home">
+                        <img class="sidebar__icon" src="img/home.svg" alt="Home Icon">
+                        Главная
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="#" class="sidebar__link" data-icon="services">
+                        <img class="sidebar__icon" src="img/services.svg" alt="Services Icon">
+                        Управление услугами
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="#" class="sidebar__link" data-icon="masters">
+                        <img class="sidebar__icon" src="img/masters.svg" alt="Masters Icon">
+                        Мастера
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="#" class="sidebar__link" data-icon="records">
+                        <img class="sidebar__icon" src="img/records.svg" alt="Records Icon">
+                        Записи
+                    </a>
+                </li>
+                <li class="sidebar__item" id="adminTab">
+                    <a href="#" class="sidebar__link" data-icon="admin" onclick="showTab('admin')">
+                        <img class="sidebar__icon" src="img/admin.svg" alt="Admin Icon">
+                        Администраторы
+                    </a>
+                </li>
+                
+            </ul>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const role = localStorage.getItem('role');
+                    if (role === 'superadmin') {
+                        document.getElementById('adminTab').style.display = 'block';
+                    }
+                });
+            </script>
+
+        </aside>
+
+        <!-- Окно Главная -->
+        <main class="main-content" id="main-content">
+            <section class="new-records">
+                <div class="new-records_header main-header">
+                    <h2 class="new-records__title main-title">Новые записи</h2>
+                </div>
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>Клиент</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newRecordsTableBody">
+                    </tbody>
+                </table>
+            </section>
+            <div class="section-div">
+                <section class="masters">
+                    <div class="masters_header main-header">
+                        <h2 class="masters__title main-title">Мастера</h2>
+                    </div>
+                    <ul class="masters-list">
+                        <li>Иван - Пн-Пт 9:00-18:00</li>
+                        <li>Георгий - Ср-Вс 10:00-19:00</li>
+                        <li>Валентина - Пн-Пт 9:00-19:00</li>
+                        <li>Максим - Пн-Ср 9:00-18:00</li>
+                    </ul>
+                </section>
+            
+                <section class="calendar">
+                    <div class="calendar_header main-header">
+                        <h2 class="calendar__title main-title">Календарь</h2>
+                    </div>
+                    <div class="calendar_container">
+                        <div id="calendar-a"></div>
+                    </div>
+                </section>
+            </div>
+
+
+        </main>
+        <script type="module" src="js/calendar.js"></script>
+
+        <!-- Окно Услуги -->
+        <main class="main-services main" id="servicesSection" style="display: none;">
+            <div class="services_header">
+                <h2 class="services__title">Управление услугами</h2>
+            </div>
+            <section class="services">
+                <table class="services__table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Стоимость</th>
+                            <th>Действие</th>
+                            <th>
+                                <button id="addServiceButton" class="service__button service__button--add">
+                                    <img src="img/add.svg" alt="Добавить услугу">
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTableBody">
+
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Модальное окно Настройки -->
+            <div id="settingsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header"> 
+                        <h2>Настройки</h2> 
+                        <img class="close" id="closeModal" src="img/close.svg"></img> 
+                    </div>
+                    <table>
+                        <tr>
+                            <td>ID</td>
+                            <td>
+                                <span id="serviceId"></span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Название</td>
+                            <td>
+                                <span id="serviceName" contenteditable="false"></span>
+                            </td>
+                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                        </tr>
+                        <tr>
+                            <td>Стоимость</td>
+                            <td>
+                                <span id="priceValue" contenteditable="false"></span> ₽
+                            </td>
+                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                        </tr>
+                    </table>
+                    <button id="saveSettings">Сохранить</button>
+                </div>
+            </div>
+
+            <!-- Модальное окно Добавление -->
+            <div id="addServiceModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header"> 
+                        <h2>Добавить услугу</h2>
+                        <img class="close" id="closeAddServiceModal" src="img/close.svg"></img> 
+                    </div>
+
+                    <label for="newServiceName">Название:</label>
+                    <input type="text" id="newServiceName" class="newService_input" required maxlength="30">
+                    <span id="nameError" class="error-message"></span>
+                    <br>
+                    <label for="newServicePrice">Цена:</label>   
+                    <input type="number" id="newServicePrice" class="newService_input" required>
+                    <span id="priceError" class="error-message"></span><br>
+                    <button id="saveNewService">Сохранить</button>
+                </div>
+            </div>
+            
+        </main>
+
+        <!-- Окно Мастера -->
+        <main class="main-masters main" id="mastersSection" style="display: none;">
+            <div class="masters-header">
+                <h2 class="masters-title">Список мастеров</h2>
+            </div>
+            <section class="masters-content">
+                <table class="masters-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Специализация</th>
+                            <th>График</th>
+                            <th>Действие</th>
+                            <th>
+                                <button id="addMasterButton" class="master-button master__button--add">
+                                    <img src="img/add.svg" alt="Добавить услугу">
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="mastersTableBody">
+                    </tbody>
+                </table>
+            </section>
+            
+
+            <!-- Модальное окно настройки мастеров -->
+            <div id="masterSettingsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header"> 
+                        <h2 class="modal-title">Настройки</h2> 
+                        <img class="close" id="closeMasterModal" src="img/close.svg"> 
+                    </div>
+                    <table class="modal-table">
+                        <tr>
+                            <td class="modal-label">ID</td>
+                            <td><span id="masterId" contenteditable="false">001</span></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="modal-label">Имя</td>
+                            <td><span id="masterName" contenteditable="false">Иван</span></td>
+                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                        </tr>
+                        <tr>
+                            <td class="modal-label">Специализация</td>
+                            <td><span id="masterSpecialization" contenteditable="false">Стрижка и укладка</span></td>
+                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                        </tr>
+                        <tr>
+                            <td class="modal-label">График</td>
+                            <td><span id="masterSchedule" contenteditable="false">Пн-Пт 9:00-18:00</span></td>
+                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                        </tr>
+                    </table>
+                    <button id="saveMasterSettings" class="modal-save-button">Сохранить</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Модальное окно добавления мастера -->
+        <div id="addMasterModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2>Добавить мастера</h2>
+                    <img class="close" id="closeAddMasterModal" src="img/close.svg"></img> 
+                </div>
+                <label for="newMasterName">Имя:</label>
+                <input type="text" id="newMasterName" class="newMaster_input" required maxlength="30">
+                <span id="masterNameError" class="error-message"></span>
+                <br>
+                <label for="newMasterSpecialization">Специализация:</label>
+                <input type="text" id="newMasterSpecialization" class="newMaster_input" required maxlength="30"> 
+                <span id="specializationError" class="error-message"></span>
+                <br>
+                <label for="newMasterSchedule">График:</label>
+                <input type="text" id="newMasterSchedule" class="newMaster_input" required maxlength="25">
+                <span id="scheduleError" class="error-message"></span>
+                
+                <br>
+                <button id="saveNewMaster">Сохранить</button>
+            </div>
+        </div>
+
+
+        <!-- Окно Записей -->
+        <main class="main-records" id="recordsSection" style="display: none;">
+            <div class="records-header">
+                <h2 class="records-title">Записи</h2>
+            </div>
+            <section class="records-content">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Клиент</th>
+                            <th>Дата</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        
+                    </tbody>
+                </table>                
+            </section>
+        </main>
+
+        <!-- Модальное окно для подробностей записи -->
+        <div id="detailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2>Подробнее</h2>
+                    <img class="close" id="closeDetailsModal" src="img/close.svg"> 
+                </div>
+                <table>
+                    <tr>
+                        <td>ID</td>
+                        <td><span id="detailId"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Имя клиента</td>
+                        <td><span id="detailClientName"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Номер телефона</td>
+                        <td><span id="detailPhone"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td><span id="detailEmail"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Мастер</td>
+                        <td><span id="detailMaster"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Услуга</td>
+                        <td><span id="detailService"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Стоимость</td>
+                        <td><span id="detailPrice"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Дата</td>
+                        <td><span id="detailDate"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Статус записи</td>
+                        <td><span id="detailStatus"></span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+                <!-- Окно Администраторы -->
+        <main class="main-admins main" id="adminSection" style="display: none;">
+            <div class="admins-header">
+                <h2 class="admins-title">Список администраторов</h2>
+            </div>
+            <section class="admins-content">
+                <table class="admins-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Логин</th>
+                            <th>Пароль</th>
+                            <th>Действие</th>
+                            <th>
+                                <button id="addAdminButton" class="admin-button admin__button--add">
+                                    <img src="img/add.svg" alt="Добавить администратора">
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsTableBody">
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Модальное окно настройки администратора -->
+            <div id="adminSettingsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header"> 
+                        <h2 class="modal-title">Настройки администратора</h2> 
+                        <img class="close" id="closeAdminModal" src="img/close.svg"> 
+                    </div>
+                    <table class="modal-table">
+                        <tr>
+                            <td>ID:</td>
+                            <td><span id="adminId" contenteditable="false"></span></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Имя:</td>
+                            <td>
+                                <span id="adminName"></span>
+                            </td>
+                            <td>
+                                <img src="img/edit.svg" alt="Edit" class="edit-icon" style="cursor:pointer;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Логин:</td>
+                            <td>
+                                <span id="adminLogin"></span>
+                            </td>
+                            <td>
+                                <img src="img/edit.svg" alt="Edit" class="edit-icon" style="cursor:pointer;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Пароль:</td>
+                            <td>
+                                <span id="adminPassword"></span>
+                            </td>
+                            <td>
+                                <img src="img/edit.svg" alt="Edit" class="edit-icon" style="cursor:pointer;">
+                            </td>
+                        </tr>
+                    </table>
+                    <button id="saveAdminSettings" class="modal-save-button">Сохранить</button>
+                </div>
+            </div>
+
+            
+        </main>
+
+        <!-- Модальное окно добавления администратора -->
+        <div id="addAdminModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2>Добавить администратора</h2>
+                    <img class="close" id="closeAddAdminModal" src="img/close.svg"> 
+                </div>
+                <label for="newAdminName">Имя:</label>
+                <input type="text" id="newAdminName" class="newAdmin_input" required maxlength="30">
+                <span id="adminNameError" class="error-message"></span>
+                <br>
+                <label for="newAdminLogin">Логин:</label>
+                <input type="text" id="newAdminLogin" class="newAdmin_input" required maxlength="30"> 
+                <span id="loginError" class="error-message"></span>
+                <br>
+                <label for="newAdminPassword">Пароль:</label>
+                <input type="text" id="newAdminPassword" class="newAdmin_input" required maxlength="25">
+                <span id="passwordError" class="error-message"></span>
+                
+                <br>
+                <button id="saveNewAdmin">Сохранить</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+.main-records{
+    margin: calc(56px + 29px) 9px 29px calc(270px + 29px);
+    padding: 0px 20px 20px 20px;
+    width: 100%;
+}
+
+.records-content{
+    background-color: #fff;
+    padding: 30px;
+    padding-top: 10px;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 20px;
+    color: #000;
+}
+
+.records-header {
+    background-color: #242424;
+    width: 100%;
+    height: 41px;
+    top: calc(60px + 29px);
+    z-index: 1;
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.records-table {
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 10px; 
+}
+
+.records-table th, .records-table td {
+    padding: 20px; 
+    text-align: left; 
+    border-left: none; 
+    border-right: none;
+}
+
+.records-table th {
+    font-weight: bold;
+    font-size: 25px;
+    padding-bottom: 10px;
+}
+
+.records-table thead tr {
+    border-bottom: 2px solid #333; 
+}
+
+.records-table tr {
+    border-bottom: 1px solid #ccc;
+}
+
+.record-button {
+    padding: 5px; 
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: transparent;
+    margin-right: 12px; 
+    display: flex; 
+    align-items: center; 
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.record-button--info{
+    width: 38px;
+    height: 38px;
+}
+
+.record-button--confirm{
+    width: 38px;
+    height: 38px;
+}
+.status{
+    font-weight: bold;
+}
+.record-button--reject{
+    width: 38px;
+    height: 38px;
+}
+
+.record-buttons {
+    display: flex; 
+    align-items: center; 
+}
+
+.record-button--delete{
+    width: 26px;
+    height: 26px;
+    margin-left: 35px;
+}
+
+.record-button:hover {
+    transform: scale(0.9);
+}
+
+.record-button:active:not(.inactive) { 
+    transform: scale(0.95);
+}
+
+.record-button.inactive {
+    filter: grayscale(100%);
+    pointer-events: none; 
+    
+}
+
+.status-awaiting {
+    color: #E09100; /* Жёлтый цвет */
+    font-weight: bold;
+}
+
+/* Зелёный цвет для статуса "Подтверждена" */
+.status-confirmed {
+    color: #037E36; /* Зелёный цвет */
+    font-weight: bold;
+}
+
+/* Красный цвет для статуса "Отклонена" */
+.status-rejected {
+    color: #8E2E2E; /* Красный цвет */
+    font-weight: bold;
+}
+
+@media (max-width: 1380px){
+    #recordsTableBody{
+        font-size: 18px;
+    }
+
+    .records-table th, .records-table td{
+        padding: 10px;
+    }
+}

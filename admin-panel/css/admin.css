@@ -1,0 +1,227 @@
+.main-admins {
+    margin: calc(56px + 29px) 9px 29px calc(270px + 29px);
+    padding: 0px 20px 20px 20px;
+    width: 100%;
+}
+
+.admins-content {
+    background-color: #fff;
+    padding: 30px;
+    padding-top: 10px;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 20px;
+    color: #000;
+}
+
+.admins-header {
+    background-color: #242424;
+    width: 100%;
+    height: 41px;
+    z-index: 1;
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.admins-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.admins-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admins-table th,
+.admins-table td {
+    padding: 20px;
+    text-align: left;
+    border-left: none;
+    border-right: none;
+}
+
+.admins-table th {
+    font-weight: bold;
+    font-size: 25px;
+    padding-bottom: 10px;
+}
+
+.admins-table thead tr {
+    border-bottom: 2px solid #333;
+}
+
+.admins-table td {
+    font-weight: 400;
+    color: #000;
+}
+
+.admins-table tr {
+    border-bottom: 1px solid #ccc;
+}
+
+.admin-button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.admin-button--settings {
+    background-color: #398467;
+    color: #fff;
+    border-radius: 5px;
+    width: 154px;
+    height: 44px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: normal;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.admin-button--settings:hover {
+    background-color: #2f6d57;
+}
+
+.admin-button--settings:active {
+    background-color: #1f4b3a;
+    transform: scale(0.95);
+}
+
+.admin-actions {
+    display: flex;
+    width: 100%;
+}
+
+.admin-button--delete {
+    background-color: #fff;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+    margin-left: 8px;
+}
+
+.admin-button--delete img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.admin-button--delete:hover {
+    transform: scale(0.9);
+}
+
+#adminSettingsModal,
+#addAdminModal {
+    display: none;
+    z-index: 1000;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 560px;
+}
+
+.modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modal-content td {
+    font-size: 16px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.modal-content td:first-child {
+    font-weight: 500;
+}
+
+.modal-content td img {
+    cursor: pointer;
+}
+
+.modal-content td[contenteditable="true"] {
+    border: 1px solid #ccc;
+    padding: 5px;
+    background-color: #f9f9f9;
+}
+
+.edit-icon {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+}
+
+.edit-icon:hover {
+    transform: scale(0.9);
+}
+
+#saveAdminSettings,
+#saveNewAdmin {
+    border: 0;
+    width: 150px;
+    height: 42px;
+    background-color: #398467;
+    color: white;
+    font-family: 'Montserrat';
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+#saveAdminSettings:hover,
+#saveNewAdmin:hover {
+    background-color: #2f6d57;
+}
+
+.newAdmin_input {
+    border: none;
+    background-color: #e2e2e2;
+    font-size: 18px;
+    width: 96%;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.admin__button--add {
+    transition: transform 0.2s ease;
+    background-color: transparent;
+}
+
+.admin__button--add img {
+    width: 38px;
+    height: 38px;
+}
+
+.admin__button--add:hover {
+    transform: scale(0.9);
+}
+
+.password-hidden {
+    font-family: monospace;
+}
+
+.toggle-password {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding-left: 10px;
+    display: inline-flex;
+    align-items: center;
+}
