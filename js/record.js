@@ -1,65 +1,228 @@
-document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
-    const selected = dropdown.querySelector('.selected');
-    const optionsContainer = dropdown.querySelector('.options');
-    const options = dropdown.querySelectorAll('.option');
+const SERVICE_DURATION_MINUTES = 90;
 
-    
-    dropdown.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        dropdown.classList.toggle('open'); 
-    });
-
-    options.forEach(option => {
-        option.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-
-            const text = option.textContent.trim();
-
-            
-            selected.innerHTML = text;
-
-            
-            selected.dataset.value = option.getAttribute('data-value');
-
-            
-            dropdown.classList.remove('open');
-        });
-    });
-
-    
-    document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target)) {
-            dropdown.classList.remove('open'); 
-        }
-    });
-});
-
-
-function saveRecordToLocalStorage(record) {
-    // Проверяем, есть ли уже сохраненные записи с ключом "clientRecords"
-    let records = JSON.parse(localStorage.getItem('clientRecords')) || [];
-    records.push(record);
-    localStorage.setItem('clientRecords', JSON.stringify(records));
+function getDataFromLocalStorage() {
+    const masters = JSON.parse(localStorage.getItem('masters')) || [];
+    const services = JSON.parse(localStorage.getItem('services')) || [];
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    return { masters, services, records };
 }
 
+const daysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+
+function getMasterWorkingHours(master, date) {
+    const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'short' }); 
+
+    
+    const workingHoursEntry = master.график_работы.split(", ").find(dayEntry => {
+        const [daysRange, hours] = dayEntry.split(" ");
+        const [startDay, endDay] = daysRange.split("-");
+
+        
+        if (!endDay) {
+            return daysRange === dayOfWeek;
+        }
+
+        
+        const startIndex = daysOfWeek.indexOf(startDay);
+        const endIndex = daysOfWeek.indexOf(endDay);
+        const currentIndex = daysOfWeek.indexOf(dayOfWeek);
+
+        
+        if (startIndex <= endIndex) {
+            
+            return currentIndex >= startIndex && currentIndex <= endIndex;
+        } else {
+            
+            return currentIndex >= startIndex || currentIndex <= endIndex;
+        }
+    });
+
+    if (!workingHoursEntry) {
+        return null;
+    }
+
+    
+    const hours = workingHoursEntry.split(" ")[1].split("-");
+    return {
+        start: hours[0],
+        end: hours[1]
+    };
+}
+
+function getMasterAppointmentsForDate(masterId, date, records) {
+    const dateString = date.toISOString().split("T")[0]; 
+    return records.filter(record => record.мастер_id === masterId && record.дата_время.startsWith(dateString));
+}
+
+function getAvailableTimeSlots(master, date, records) {
+    const workingHours = getMasterWorkingHours(master, date);
+    if (!workingHours) return []; 
+
+    const startHour = parseInt(workingHours.start.split(":")[0], 10);
+    const startMinute = parseInt(workingHours.start.split(":")[1], 10);
+    const endHour = parseInt(workingHours.end.split(":")[0], 10);
+    const endMinute = parseInt(workingHours.end.split(":")[1], 10);
+
+    
+    const appointments = getMasterAppointmentsForDate(master.мастер_id, date, records);
+
+    
+    const availableSlots = [];
+    let currentHour = startHour;
+    let currentMinute = startMinute;
+
+    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+        const slotStart = new Date(date);
+        slotStart.setHours(currentHour, currentMinute);
+
+        const slotEnd = new Date(slotStart);
+        slotEnd.setMinutes(slotStart.getMinutes() + SERVICE_DURATION_MINUTES);
+
+        
+        if (slotEnd.getHours() > endHour || (slotEnd.getHours() === endHour && slotEnd.getMinutes() > endMinute)) {
+            break;
+        }
+
+        
+        const isSlotFree = appointments.every(appointment => {
+            const appointmentStart = new Date(appointment.дата_время);
+            const appointmentEnd = new Date(appointmentStart);
+            appointmentEnd.setMinutes(appointmentStart.getMinutes() + SERVICE_DURATION_MINUTES);
+
+            return slotEnd <= appointmentStart || slotStart >= appointmentEnd;
+        });
+
+        if (isSlotFree) {
+            availableSlots.push(slotStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+
+        
+        currentMinute += 30;
+        if (currentMinute >= 60) {
+            currentMinute = 0;
+            currentHour += 1;
+        }
+    }
+
+    return availableSlots;
+}
+
+function showAvailableTimeSlots() {
+    const selectedDate = new Date(document.getElementById('date-picker').value);
+    const masterDropdown = document.getElementById('master');
+    const selectedMasterId = masterDropdown.querySelector('.selected').dataset.value;
+
+    if (!selectedMasterId || isNaN(selectedDate.getTime())) {
+        return; 
+    }
+
+    const { masters, records } = getDataFromLocalStorage();
+    const selectedMaster = masters.find(master => master.мастер_id === selectedMasterId);
+
+    const availableSlots = getAvailableTimeSlots(selectedMaster, selectedDate, records);
+    const timeSlotsContainer = document.getElementById('time-slots');
+    timeSlotsContainer.innerHTML = ''; 
+
+    if (availableSlots.length === 0) {
+        timeSlotsContainer.textContent = 'Нет доступного времени для записи на выбранный день';
+    } else {
+        availableSlots.forEach(time => {
+            const timeSlot = document.createElement('div');
+            timeSlot.classList.add('time-slot');
+            timeSlot.textContent = time;
+            timeSlot.addEventListener('click', () => {
+                
+                document.querySelector('.selected-time').textContent = `Вы выбрали: ${time}`;
+            });
+            timeSlotsContainer.appendChild(timeSlot);
+        });
+    }
+}
+
+
+function getMastersForService(serviceName, masters) {
+    if (["Мужская стрижка", "Комплекс: стрижка и бритьё", "Укладка волос", "Детская стрижка"].includes(serviceName)) {
+        return masters.filter(master => master.специализация.includes("Стрижка"));
+    } else if (["Бритьё опасной бритвой", "Коррекция бороды", "Окрашивание бороды", "Королевское бритьё с уходом"].includes(serviceName)) {
+        return masters.filter(master => master.специализация.includes("Бритьё") || master.специализация.includes("бородой"));
+    }
+    return [];
+}
+
+function saveRecordToLocalStorage(record) {
+    let records = JSON.parse(localStorage.getItem('records')) || [];
+    
+    
+    record.запись_id = record.запись_id.toString();
+    record.клиент_id = record.клиент_id?.toString();
+    record.мастер_id = record.мастер_id.toString();
+    record.услуга_id = record.услуга_id.toString();
+
+    records.push(record);
+    localStorage.setItem('records', JSON.stringify(records));
+}
+
+function getMasterNameById(masterId) {
+    const masters = JSON.parse(localStorage.getItem('masters')) || [];
+    const master = masters.find(m => m.мастер_id === masterId);
+    return master ? master.имя : '';
+}
+
+function getServiceNameById(serviceId) {
+    const services = JSON.parse(localStorage.getItem('services')) || [];
+    const service = services.find(s => s.услуга_id === serviceId);
+    return service ? service.название : '';
+}
+
+function populateServices(services) {
+    const serviceSelect = document.getElementById('service').querySelector('.options');
+    serviceSelect.innerHTML = ''; 
+
+    services.forEach(service => {
+        const option = document.createElement('div');
+        option.classList.add('option');
+        option.setAttribute('data-value', service.услуга_id);
+        option.textContent = `${service.название} - ${service.цена} руб.`;
+        serviceSelect.appendChild(option);
+    });
+}
+
+
+function populateMasters(masters) {
+    const masterSelect = document.getElementById('master').querySelector('.options');
+    masterSelect.innerHTML = '';
+    masters.forEach(master => {
+        const option = document.createElement('div');
+        option.classList.add('option');
+        option.dataset.value = master.мастер_id;
+        option.textContent = `${master.имя} (${master.график_работы})`;
+        masterSelect.appendChild(option);
+    });
+}
+
+function getNextRecordId() {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    const nextId = records.length > 0 ? Math.max(...records.map(r => parseInt(r.запись_id, 10))) + 1 : 1;
+    return nextId.toString(); 
+}
+
+
 function validateForm() {
-    // Получаем значения полей
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
 
-    // Получаем выбранные значения для мастера, даты и услуги из dropdown'ов
-    const selectedMasterElement = document.getElementById('master').querySelector('.selected');
-    const selectedServiceElement = document.getElementById('service').querySelector('.selected');
-    const selectedDateTimeElement = document.getElementById('date-time').querySelector('.selected');
+    let selectedMasterElement = document.getElementById('master').querySelector('.selected');
+    let selectedServiceElement = document.getElementById('service').querySelector('.selected');
+    let selectedDate = document.getElementById('date-picker').value; 
+    let selectedTime = document.querySelector('.selected-time').textContent; 
 
-    // Извлекаем значения из data-value атрибутов
+    selectedTime = selectedTime.replace('Вы выбрали: ', '').trim();
+
     const selectedMasterId = selectedMasterElement.dataset.value;
     const selectedServiceId = selectedServiceElement.dataset.value;
-    const selectedDateTime = selectedDateTimeElement.dataset.value;
 
-
-    // Получаем элементы для отображения ошибок
     const nameError = document.getElementById('name-error');
     const emailError = document.getElementById('email-error');
     const phoneError = document.getElementById('phone-error');
@@ -68,7 +231,6 @@ function validateForm() {
     const serviceError = document.getElementById('service-error');
     const successMessage = document.getElementById('success-message');
 
-    // Устанавливаем флаг валидности
     let isValid = true;
 
     
@@ -114,7 +276,7 @@ function validateForm() {
     }
 
     
-    if (!selectedDateTime) {
+    if (!selectedDate || !selectedTime) {
         dateTimeError.textContent = 'Пожалуйста, выберите дату и время.';
         dateTimeError.style.display = 'block';
         isValid = false;
@@ -131,19 +293,29 @@ function validateForm() {
         serviceError.style.display = 'none';
     }
 
+
+    function getServicePriceById(serviceId) {
+        const services = JSON.parse(localStorage.getItem('services')) || [];
+        const service = services.find(service => service.услуга_id === serviceId);
+        return service ? service.цена : null;
+    }
     
+
     if (isValid) {
         const newRecord = {
-            запись_id: Date.now().toString(),
+            запись_id: getNextRecordId().toString(), 
             клиент_имя: name,
             клиент_телефон: phone,
             клиент_email: email,
-            мастер_id: selectedMasterId,
-            услуга_id: selectedServiceId,
-            дата_время: selectedDateTime,
+            мастер_id: selectedMasterId.toString(), 
+            мастер_имя: getMasterNameById(selectedMasterId),
+            услуга_id: selectedServiceId.toString(), 
+            услуга_название: getServiceNameById(selectedServiceId),
+            услуга_цена: getServicePriceById(selectedServiceId), 
+            дата_время: `${selectedDate} ${selectedTime}`, 
             статус: 'Ожидает подтверждения'
         };
-    
+        
         saveRecordToLocalStorage(newRecord);
 
         successMessage.textContent = 'Ваша запись отправлена!';
@@ -157,9 +329,123 @@ function validateForm() {
 }
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    const submitButton = document.querySelector('.submit-button');
-    submitButton.addEventListener('click', validateForm);
+    const { masters, services } = getDataFromLocalStorage();
+    populateServices(services);
+
+    const serviceDropdown = document.getElementById('service');
+    const masterDropdown = document.getElementById('master');
+    const datePicker = document.getElementById('date-picker');
+    const timeSlotsContainer = document.getElementById('time-slots');
+    const selectedServiceElement = serviceDropdown.querySelector('.selected');
+    const selectedMasterElement = masterDropdown.querySelector('.selected');
+
+    masterDropdown.classList.add('disabled');
+    datePicker.disabled = true;
+    timeSlotsContainer.classList.add('disabled');
+
+    function resetDateTimeSelection() {
+        const dateTimeError = document.getElementById('date-time-error');
+        datePicker.value = ''; 
+        document.querySelector('.selected-time').textContent = ''; 
+        timeSlotsContainer.innerHTML = ''; 
+        timeSlotsContainer.classList.add('disabled'); 
+
+        if (dateTimeError) {
+            dateTimeError.style.display = 'none';
+        }
+    }
+
+    
+    serviceDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!serviceDropdown.classList.contains('open')) {
+            closeAllDropdowns(serviceDropdown); 
+            serviceDropdown.classList.add('open'); 
+        }
+    });
+
+    
+    masterDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!masterDropdown.classList.contains('disabled') && !masterDropdown.classList.contains('open')) {
+            closeAllDropdowns(masterDropdown);
+            masterDropdown.classList.add('open'); 
+        }
+    });
+
+    
+    serviceDropdown.querySelector('.options').addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        if (e.target.classList.contains('option')) {
+            const option = e.target;
+            const serviceName = option.textContent.split(" - ")[0];
+            selectedServiceElement.textContent = option.textContent.trim();
+            selectedServiceElement.dataset.value = option.getAttribute('data-value');
+            serviceDropdown.classList.remove('open'); 
+
+            
+            resetMasterSelection();
+            resetDateTimeSelection();
+
+            
+            const availableMasters = getMastersForService(serviceName, masters);
+            populateMasters(availableMasters);
+
+            
+            masterDropdown.classList.remove('disabled');
+        }
+    });
+
+    
+    masterDropdown.querySelector('.options').addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        if (e.target.classList.contains('option')) {
+            const option = e.target;
+            selectedMasterElement.textContent = option.textContent.trim();
+            selectedMasterElement.dataset.value = option.getAttribute('data-value');
+            masterDropdown.classList.remove('open'); 
+
+            
+            resetDateTimeSelection();
+
+            
+            if (selectedServiceElement.dataset.value && selectedMasterElement.dataset.value) {
+                datePicker.disabled = false; 
+                timeSlotsContainer.classList.remove('disabled'); 
+            }
+        }
+    });
+
+    
+    document.addEventListener('click', () => {
+        closeAllDropdowns();
+    });
+
+    datePicker.addEventListener('change', showAvailableTimeSlots);
+
+    document.querySelector('.submit-button').addEventListener('click', validateForm);
 });
+
+
+function resetMasterSelection() {
+    const masterDropdown = document.getElementById('master');
+    const selectedMasterElement = masterDropdown.querySelector('.selected');
+    selectedMasterElement.textContent = "Выберите мастера";
+    selectedMasterElement.dataset.value = "";
+    masterDropdown.classList.add('disabled'); 
+}
+
+
+function closeAllDropdowns(exceptDropdown = null) {
+    const dropdowns = document.querySelectorAll('.custom-dropdown');
+    dropdowns.forEach(dropdown => {
+        if (dropdown !== exceptDropdown) {
+            dropdown.classList.remove('open');
+        }
+    });
+}
+
 
 
