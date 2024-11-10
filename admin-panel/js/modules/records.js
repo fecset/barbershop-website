@@ -1,3 +1,4 @@
+
 export function initRecords() {
     const recordsTableBody = document.getElementById('recordsTableBody');
     const newRecordsTableBody = document.getElementById('newRecordsTableBody');
@@ -63,6 +64,7 @@ export function initRecords() {
 
     function saveRecordsToLocalStorage(records) {
         localStorage.setItem('records', JSON.stringify(records));
+        syncRecordsToClientSchedule();
     }
 
     function populateRecords() {
@@ -100,15 +102,27 @@ export function initRecords() {
     }
 
     async function initializeRecords() {
-        let records = getRecordsFromLocalStorage();
-        if (records.length === 0) {
-            records = await loadDataFromJson();
-            saveRecordsToLocalStorage(records);
-        }
+        // let records = getRecordsFromLocalStorage();
+        // if (records.length === 0) {
+        //     records = await loadDataFromJson();
+        //     saveRecordsToLocalStorage(records);
+        // }
         populateRecords();
         initializeNewRecords();
     }
 
+    function deleteFromClientScheduleRecords(master, time, date) {
+        let clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
+    
+        // Удаляем запись из clientScheduleRecords на основе совпадения по мастеру, времени и дате
+        clientScheduleRecords = clientScheduleRecords.filter(record =>
+            !(record.master === master && record.time === time && record.date === date)
+        );
+    
+        // Сохраняем обновленный список в localStorage
+        localStorage.setItem('clientScheduleRecords', JSON.stringify(clientScheduleRecords));
+    }
+    
     function attachEventHandlers() {
 
         recordsTableBody.addEventListener('click', function (event) {
@@ -126,10 +140,21 @@ export function initRecords() {
                 showRecordDetails(recordId);
             } else if (button.classList.contains('record-button--delete')) {
                 row.remove();
+
                 let records = getRecordsFromLocalStorage();
+                const record = records.find(record => record.запись_id === recordId);
                 records = records.filter(record => record.запись_id !== recordId);
                 saveRecordsToLocalStorage(records);
-                console.log('Запись удалена из localStorage:', recordId);
+        
+
+                console.log('Запись удалена из records:', recordId);
+
+                if (record) {
+                    deleteFromClientScheduleRecords(recordId);
+                    console.log('Запись также удалена из clientScheduleRecords');
+                }
+
+                loadRecords();
                 refreshTables();
             } else if (button.classList.contains('record-button--confirm')) {
                 statusCell.textContent = 'Подтверждена';

@@ -83,17 +83,18 @@ export function initMasters() {
                 currentMasterRow = this.closest('tr'); 
                 const masterId = currentMasterRow.querySelector('.master-id').textContent;
                 const masterName = currentMasterRow.querySelector('.master-name').textContent;
-                const masterSpecialization = currentMasterRow.querySelector('.master-specialization').textContent;
+                const masterSpecialization = currentMasterRow.querySelector('.master-specialization').textContent || 'Стрижка и укладка';  // Значение по умолчанию
                 const masterSchedule = currentMasterRow.querySelector('.master-schedule').textContent;
-
+        
                 document.getElementById('masterId').textContent = masterId;
                 document.getElementById('masterName').textContent = masterName;
-                document.getElementById('masterSpecialization').textContent = masterSpecialization;
+                document.getElementById('editMasterSpecialization').value = masterSpecialization;
                 document.getElementById('masterSchedule').textContent = masterSchedule;
-
+        
                 masterSettingsModal.style.display = 'flex'; 
             });
         });
+        
 
         
         document.querySelectorAll('.edit-icon').forEach(icon => {
@@ -132,7 +133,8 @@ export function initMasters() {
     document.getElementById('saveMasterSettings').addEventListener('click', function() {
         const masterId = document.getElementById('masterId').textContent.trim();
         const masterName = document.getElementById('masterName').textContent.trim();
-        const masterSpecialization = document.getElementById('masterSpecialization').textContent.trim();
+        const masterSpecialization = document.getElementById('editMasterSpecialization').value;
+
         const masterSchedule = document.getElementById('masterSchedule').textContent.trim();
     
         
@@ -158,10 +160,17 @@ export function initMasters() {
     
     addMasterButton.addEventListener('click', function() {
         document.getElementById('newMasterName').value = ''; 
-        document.getElementById('newMasterSpecialization').value = '';
+        document.getElementById('newMasterSpecialization').value = 'Стрижка и укладка';  // Устанавливаем первую специализацию
         document.getElementById('newMasterSchedule').value = '';
         addMasterModal.style.display = 'flex'; 
     });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('addMasterModal')) {  // Проверяем, был ли клик на фоновом слое модального окна
+            addMasterModal.style.display = 'none'; // Закрыть окно
+        }
+    });
+    
 
     closeAddMasterModal.addEventListener('click', function() {
         addMasterModal.style.display = 'none';
@@ -174,12 +183,10 @@ export function initMasters() {
         const newMasterSchedule = document.getElementById('newMasterSchedule').value.trim();
 
         const nameError = document.getElementById('masterNameError');
-        const specializationError = document.getElementById('specializationError');
         const scheduleError = document.getElementById('scheduleError');
 
         
         nameError.textContent = '';
-        specializationError.textContent = '';
         scheduleError.textContent = '';
 
         if (!newMasterName) {
@@ -187,14 +194,6 @@ export function initMasters() {
             return;
         } else if (!/^[a-zA-Zа-яА-Я\s]+$/.test(newMasterName)) {
             nameError.textContent = 'Имя мастера может содержать только буквы.';
-            return;
-        }
-
-        if (!newMasterSpecialization) {
-            specializationError.textContent = 'Введите специализацию мастера.';
-            return;
-        } else if (!/^[a-zA-Zа-яА-Я\s]+$/.test(newMasterSpecialization)) {
-            specializationError.textContent = 'Специализация может содержать только буквы.';
             return;
         }
 
@@ -252,20 +251,10 @@ export function initMasters() {
         }
     });
 
-    document.getElementById('newMasterSpecialization').addEventListener('input', function() {
-        const specializationError = document.getElementById('specializationError');
-        const value = this.value;
-        if (!/^[a-zA-Zа-яА-Я\s]*$/.test(value)) {
-            specializationError.textContent = 'Специализация должна содержать только буквы и пробелы.';
-            this.value = value.replace(/[^a-zA-Zа-яА-Я\s]/g, '');
-        } else {
-            specializationError.textContent = '';
-        }
-    });
 
 
     const masterNameField = document.getElementById('masterName');
-    const masterSpecializationField = document.getElementById('masterSpecialization');
+    const masterSpecializationField = document.getElementById('newMasterSpecialization');
     const masterScheduleField = document.getElementById('masterSchedule');
 
     masterNameField.addEventListener('keydown', handleAlphabeticKey);

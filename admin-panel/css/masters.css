@@ -256,6 +256,32 @@
     background-color: #2f6d57;
 }
 
+#newMasterSpecialization{
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    color: #333;
+    background-color: #e2e2e2;
+    border: none;
+    border-radius: 5px;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#editMasterSpecialization{
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    color: #333;
+    background-color: #e2e2e2;
+    border: none;
+    border-radius: 5px;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
 
 @media (max-width: 1380px){
     .main-masters{

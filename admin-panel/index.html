@@ -118,7 +118,53 @@
 
         <!-- Окно Главная -->
         <main class="main-content" id="main-content">
-            <section class="new-records">
+            <section class="schedule-table">
+                <div class="schedule-table_header main-header">
+                    <h2 class="schedule-table__title main-title">Таблица записей</h2>
+                </div>
+                <table id="scheduleTable" class="schedule-records-table">
+                    <thead>
+                        <tr id="mastersRow">
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Модальное окно для ввода клиента -->
+            <div id="clientModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModal" class="close">&times;</span>
+                    <h2>Запись клиента</h2>
+                    
+                    <label for="clientNameInput">Имя клиента:</label>
+                    <input type="text" id="clientNameInput" maxlength="20" required>
+
+                    <label for="serviceSelect">Выберите услугу:</label>
+                    <select id="serviceSelect" required>
+                        <option value="" disabled selected>-- Выберите услугу --</option>
+                        <!-- Варианты услуг будут добавляться программно -->
+                        <option value="other">Другое</option>
+                    </select>
+
+                    <!-- Поле ввода для услуги "Другое" (скрыто по умолчанию) -->
+                    <div id="otherServiceContainer" style="display: none;">
+                        <label for="otherServiceInput">Введите название услуги:</label>
+                        <input type="text" id="otherServiceInput" maxlength="30">
+                    </div>
+
+                    <div id="errorMessage" class="error-message"></div>
+                    <div class="buttons">                    
+                        <button id="saveClientButton">Сохранить</button>
+                        <button id="deleteClientButton" style="display: none; background-color: #8E2E2E; color: white; margin-left: 10px;">Удалить</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <section class="new-records" style="display: none;">
                 <div class="new-records_header main-header">
                     <h2 class="new-records__title main-title">Новые записи</h2>
                 </div>
@@ -140,10 +186,6 @@
                         <h2 class="masters__title main-title">Мастера</h2>
                     </div>
                     <ul class="masters-list">
-                        <li>Иван - Пн-Пт 9:00-18:00</li>
-                        <li>Георгий - Ср-Вс 10:00-19:00</li>
-                        <li>Валентина - Пн-Пт 9:00-19:00</li>
-                        <li>Максим - Пн-Ср 9:00-18:00</li>
                     </ul>
                 </section>
             
@@ -172,6 +214,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Название</th>
+                            <th>Специализация</th>
                             <th>Стоимость</th>
                             <th>Действие</th>
                             <th>
@@ -192,7 +235,7 @@
                 <div class="modal-content">
                     <div class="modal-header"> 
                         <h2>Настройки</h2> 
-                        <img class="close" id="closeModal" src="img/close.svg"></img> 
+                        <img class="close" id="closeSettingsModal" src="img/close.svg"></img> 
                     </div>
                     <table>
                         <tr>
@@ -210,6 +253,16 @@
                             <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
                         </tr>
                         <tr>
+                            <td>Специализация</td>
+                            <td>
+                                <select id="serviceSpecialization">
+                                    <option value="Стрижка и укладка">Стрижка и укладка</option>
+                                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                                </select>
+                                <td></td>
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Стоимость</td>
                             <td>
                                 <span id="priceValue" contenteditable="false"></span> ₽
@@ -221,21 +274,30 @@
                 </div>
             </div>
 
-            <!-- Модальное окно Добавление -->
+            <!-- Модальное окно Добавление услуги -->
             <div id="addServiceModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header"> 
                         <h2>Добавить услугу</h2>
                         <img class="close" id="closeAddServiceModal" src="img/close.svg"></img> 
                     </div>
-
+            
                     <label for="newServiceName">Название:</label>
                     <input type="text" id="newServiceName" class="newService_input" required maxlength="30">
                     <span id="nameError" class="error-message"></span>
                     <br>
+            
                     <label for="newServicePrice">Цена:</label>   
                     <input type="number" id="newServicePrice" class="newService_input" required>
                     <span id="priceError" class="error-message"></span><br>
+            
+                    <!-- Добавляем поле для специализации -->
+                    <label for="serviceSpecialization">Специализация:</label>
+                    <select id="serviceSpecialization" required>
+                        <option value="Стрижка и укладка">Стрижка и укладка</option>
+                        <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                    </select><br>
+            
                     <button id="saveNewService">Сохранить</button>
                 </div>
             </div>
@@ -289,8 +351,13 @@
                         </tr>
                         <tr>
                             <td class="modal-label">Специализация</td>
-                            <td><span id="masterSpecialization" contenteditable="false">Стрижка и укладка</span></td>
-                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                            <td>
+                                <select id="editMasterSpecialization" required>
+                                    <option value="Стрижка и укладка">Стрижка и укладка</option>
+                                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                                    <option value="Уборка">Уборка</option>
+                                </select>
+                            </td>
                         </tr>
                         <tr>
                             <td class="modal-label">График</td>
@@ -315,8 +382,11 @@
                 <span id="masterNameError" class="error-message"></span>
                 <br>
                 <label for="newMasterSpecialization">Специализация:</label>
-                <input type="text" id="newMasterSpecialization" class="newMaster_input" required maxlength="30"> 
-                <span id="specializationError" class="error-message"></span>
+                <select id="newMasterSpecialization" required>
+                    <option value="Стрижка и укладка">Стрижка и укладка</option>
+                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                    <option value="Уборка">Уборка</option>
+                </select>
                 <br>
                 <label for="newMasterSchedule">График:</label>
                 <input type="text" id="newMasterSchedule" class="newMaster_input" required maxlength="25">

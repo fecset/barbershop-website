@@ -10,45 +10,55 @@ function getDataFromLocalStorage() {
 const daysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
 
-function getMasterWorkingHours(master, date) {
-    const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'short' }); 
 
+function getMasterWorkingHours(master, date) {
     
+    const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'short' }).charAt(0).toUpperCase() + date.toLocaleDateString('ru-RU', { weekday: 'short' }).slice(1);
+    console.log("Проверяем рабочий день:", dayOfWeek); 
+
+    if (!master.график_работы) {
+        console.warn("График работы мастера не найден");
+        return null;
+    }
+
     const workingHoursEntry = master.график_работы.split(", ").find(dayEntry => {
+        console.log("Анализируем запись графика:", dayEntry); 
         const [daysRange, hours] = dayEntry.split(" ");
         const [startDay, endDay] = daysRange.split("-");
 
-        
-        if (!endDay) {
-            return daysRange === dayOfWeek;
-        }
-
-        
         const startIndex = daysOfWeek.indexOf(startDay);
-        const endIndex = daysOfWeek.indexOf(endDay);
+        const endIndex = daysOfWeek.indexOf(endDay || startDay); 
         const currentIndex = daysOfWeek.indexOf(dayOfWeek);
 
-        
+        if (currentIndex === -1) {
+            console.error(`Ошибка: День недели "${dayOfWeek}" не найден в daysOfWeek`);
+            return false;
+        }
+
+        console.log(`Диапазон дней: ${startDay} (${startIndex}) - ${endDay || startDay} (${endIndex}), Текущий день: ${dayOfWeek} (${currentIndex})`); 
+
         if (startIndex <= endIndex) {
-            
             return currentIndex >= startIndex && currentIndex <= endIndex;
         } else {
-            
             return currentIndex >= startIndex || currentIndex <= endIndex;
         }
     });
 
     if (!workingHoursEntry) {
+        console.log("Мастер не работает в выбранный день:", date.toDateString());
         return null;
     }
 
-    
+    console.log("Найденные рабочие часы для дня:", workingHoursEntry); 
+
     const hours = workingHoursEntry.split(" ")[1].split("-");
     return {
         start: hours[0],
         end: hours[1]
     };
 }
+
+
 
 function getMasterAppointmentsForDate(masterId, date, records) {
     const dateString = date.toISOString().split("T")[0]; 
@@ -57,17 +67,25 @@ function getMasterAppointmentsForDate(masterId, date, records) {
 
 function getAvailableTimeSlots(master, date, records) {
     const workingHours = getMasterWorkingHours(master, date);
-    if (!workingHours) return []; 
+    console.log("Рабочие часы мастера:", workingHours); 
+    if (!workingHours) {
+        console.log("Мастер не работает в выбранный день:", date);
+        return [];
+    }
+
+    const today = new Date();
+    const isToday = today.toDateString() === date.toDateString();
 
     const startHour = parseInt(workingHours.start.split(":")[0], 10);
     const startMinute = parseInt(workingHours.start.split(":")[1], 10);
     const endHour = parseInt(workingHours.end.split(":")[0], 10);
     const endMinute = parseInt(workingHours.end.split(":")[1], 10);
 
-    
-    const appointments = getMasterAppointmentsForDate(master.мастер_id, date, records);
+    console.log("Проверка времени начала и конца работы:", startHour, ":", startMinute, "-", endHour, ":", endMinute);
 
-    
+    const appointments = getMasterAppointmentsForDate(master.мастер_id, date, records);
+    console.log("Существующие записи на выбранный день:", appointments);
+
     const availableSlots = [];
     let currentHour = startHour;
     let currentMinute = startMinute;
@@ -80,11 +98,15 @@ function getAvailableTimeSlots(master, date, records) {
         slotEnd.setMinutes(slotStart.getMinutes() + SERVICE_DURATION_MINUTES);
 
         
-        if (slotEnd.getHours() > endHour || (slotEnd.getHours() === endHour && slotEnd.getMinutes() > endMinute)) {
-            break;
+        if (isToday && slotStart <= today) {
+            currentMinute += 30;
+            if (currentMinute >= 60) {
+                currentMinute = 0;
+                currentHour += 1;
+            }
+            continue;
         }
 
-        
         const isSlotFree = appointments.every(appointment => {
             const appointmentStart = new Date(appointment.дата_время);
             const appointmentEnd = new Date(appointmentStart);
@@ -97,7 +119,6 @@ function getAvailableTimeSlots(master, date, records) {
             availableSlots.push(slotStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         }
 
-        
         currentMinute += 30;
         if (currentMinute >= 60) {
             currentMinute = 0;
@@ -105,8 +126,12 @@ function getAvailableTimeSlots(master, date, records) {
         }
     }
 
+    
+    console.log("Доступные временные слоты:", availableSlots); 
     return availableSlots;
 }
+
+
 
 function showAvailableTimeSlots() {
     const selectedDate = new Date(document.getElementById('date-picker').value);
@@ -114,7 +139,7 @@ function showAvailableTimeSlots() {
     const selectedMasterId = masterDropdown.querySelector('.selected').dataset.value;
 
     if (!selectedMasterId || isNaN(selectedDate.getTime())) {
-        return; 
+        return;
     }
 
     const { masters, records } = getDataFromLocalStorage();
@@ -122,7 +147,7 @@ function showAvailableTimeSlots() {
 
     const availableSlots = getAvailableTimeSlots(selectedMaster, selectedDate, records);
     const timeSlotsContainer = document.getElementById('time-slots');
-    timeSlotsContainer.innerHTML = ''; 
+    timeSlotsContainer.innerHTML = '';
 
     if (availableSlots.length === 0) {
         timeSlotsContainer.textContent = 'Нет доступного времени для записи на выбранный день';
@@ -132,13 +157,13 @@ function showAvailableTimeSlots() {
             timeSlot.classList.add('time-slot');
             timeSlot.textContent = time;
             timeSlot.addEventListener('click', () => {
-                
                 document.querySelector('.selected-time').textContent = `Вы выбрали: ${time}`;
             });
             timeSlotsContainer.appendChild(timeSlot);
         });
     }
 }
+
 
 
 function getMastersForService(serviceName, masters) {
@@ -357,6 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 30);
+
+    datePicker.min = today.toISOString().split('T')[0]; 
+    datePicker.max = maxDate.toISOString().split('T')[0];
     
     serviceDropdown.addEventListener('click', (e) => {
         e.stopPropagation();

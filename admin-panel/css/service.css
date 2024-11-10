@@ -2,6 +2,7 @@
 	margin: calc(56px + 29px) 9px 29px calc(270px + 29px);
     padding: 0px 20px 20px 20px;
     width: 100%;
+    z-index: 1;
 }
 
 .services {
@@ -13,6 +14,7 @@
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
     font-size: 20px;
     color: #000;
+    z-index: 1;
 }
 
 .services_header{
@@ -294,6 +296,20 @@
     padding: 10px;
     border-radius: 4px;
 }
+
+#serviceSpecialization{
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    color: #333;
+    background-color: #e2e2e2;
+    border: none;
+    border-radius: 5px;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
 
 
 @media (max-width: 1380px){
