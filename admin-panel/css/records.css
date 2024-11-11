@@ -108,21 +108,23 @@
 }
 
 .status-awaiting {
-    color: #E09100; /* Жёлтый цвет */
+    color: #E09100;
     font-weight: bold;
 }
 
-/* Зелёный цвет для статуса "Подтверждена" */
+
 .status-confirmed {
-    color: #037E36; /* Зелёный цвет */
+    color: #037E36;
     font-weight: bold;
 }
 
-/* Красный цвет для статуса "Отклонена" */
+
 .status-rejected {
-    color: #8E2E2E; /* Красный цвет */
+    color: #8E2E2E;
     font-weight: bold;
 }
+
+
 
 @media (max-width: 1380px){
     #recordsTableBody{

@@ -188,6 +188,7 @@ function saveRecordToLocalStorage(record) {
     localStorage.setItem('records', JSON.stringify(records));
 }
 
+
 function getMasterNameById(masterId) {
     const masters = JSON.parse(localStorage.getItem('masters')) || [];
     const master = masters.find(m => m.мастер_id === masterId);
@@ -235,7 +236,7 @@ function getNextRecordId() {
 
 function validateForm() {
     const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
+    let email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
 
     let selectedMasterElement = document.getElementById('master').querySelector('.selected');
@@ -272,13 +273,18 @@ function validateForm() {
     }
 
     
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-        emailError.textContent = 'Введите корректный адрес электронной почты.';
-        emailError.style.display = 'block';
-        isValid = false;
+    if (email.trim() === '') {
+        email = '-'; 
+        emailError.style.display = 'none'; 
     } else {
-        emailError.style.display = 'none';
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        if (!emailPattern.test(email)) {
+            emailError.textContent = 'Введите корректный адрес электронной почты.';
+            emailError.style.display = 'block';
+            isValid = false; 
+        } else {
+            emailError.style.display = 'none'; 
+        }
     }
 
     

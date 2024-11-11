@@ -64,7 +64,6 @@ export function initRecords() {
 
     function saveRecordsToLocalStorage(records) {
         localStorage.setItem('records', JSON.stringify(records));
-        syncRecordsToClientSchedule();
     }
 
     function populateRecords() {

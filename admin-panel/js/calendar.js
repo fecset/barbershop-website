@@ -1,4 +1,5 @@
-import { loadRecords } from './main.js';
+import { loadRecords, state } from './main.js';
+import { generateScheduleBody } from './main.js';
 
 let calA = new Calendar({
     id: "#calendar-a",
@@ -11,14 +12,26 @@ let calA = new Calendar({
     layoutModifiers: ["month-left-align"],
     eventsData: [],
 
-    
     dateChanged: (currentDate, events) => {
         if (currentDate instanceof Date && !isNaN(currentDate)) {
-            const selectedDate = new Date(currentDate.getTime() - currentDate.getTimezoneOffset() * 60000)
+            state.selectedDate = new Date(currentDate.getTime() - currentDate.getTimezoneOffset() * 60000)
                 .toISOString()
-                .split('T')[0];
-            console.log("Выбрана дата в календаре:", selectedDate);
-            loadRecords(selectedDate); 
+                .split('T')[0]; 
+
+            console.log("Выбрана дата в календаре:", state.selectedDate);
+
+            
+            document.getElementById('scheduleBody').innerHTML = '';  
+
+            
+            const masters = JSON.parse(localStorage.getItem('masters')) || [];
+            const filteredMasters = masters.filter(master => master.специализация !== 'Уборка');
+            
+            
+            generateScheduleBody(filteredMasters);
+
+            
+            loadRecords(state.selectedDate); 
         } else {
             console.error("Invalid date value:", currentDate);
         }
@@ -27,4 +40,3 @@ let calA = new Calendar({
         console.log("Изменен месяц", currentDate, events);
     }
 });
-

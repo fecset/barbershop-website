@@ -398,7 +398,6 @@ body {
 }
 
 .records-table th, .records-table td {
-    padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
@@ -407,6 +406,7 @@ body {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
+    min-width: 203px;
 }
 
 .schedule-records-table td {
@@ -432,23 +432,34 @@ body {
     background-color: #ebebeb;
 }
 
+.schedule-records-table td.time-cell:not(:empty):hover {
+    background-color: #f3f3f3;
+}
+
 
 .schedule-records-table td.time-cell {
     cursor: default;
     background-color: #f3f3f3;
     font-size: 20px;
+    min-width: 60px;
 }
 
+#mastersRow :first-child{
+    max-width: 100px;
+    min-width: 10px;
+}
 
 .schedule-records-table {
-    margin-top: 37px;
+    margin-top: 20px;
     border-collapse: collapse;
-    width: 100%;
+    width: calc(100% + 20px);
     display: block;
     overflow-y: auto;
     overflow-x: auto;
     max-height: 95%; 
-    table-layout: fixed;
+    table-layout: auto;
+    max-width: 100%;
+
 }
 
 
@@ -590,6 +601,47 @@ button {
     cursor: default;
 }
 
+.status-awaiting {
+    color: #E09100;
+    font-weight: bold;
+}
+
+
+.status-confirmed {
+    color: #037E36;
+    font-weight: bold;
+}
+
+
+.status-rejected {
+    color: #8E2E2E;
+    font-weight: bold;
+}
+
+
+#recordDetails p{
+    display: flex;
+    flex-direction: row;
+    padding-right: 10px;
+
+}
+
+#recordDetails strong{
+    padding-right: 10px;
+    font-weight: 500;
+}
+
+
+.schedule-cell.disabled-cell {
+    background-color: #bdbdbd; 
+    pointer-events: none;      
+}
+
+
+.schedule-cell.disabled-cell.has-record {
+    pointer-events: auto;      
+    cursor: pointer;          
+}
 
 @media (max-width: 1200px){
     .new-records .records-table thead tr :nth-child(2){

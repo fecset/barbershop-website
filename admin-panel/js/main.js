@@ -3,6 +3,10 @@ import { initMasters } from './modules/masters.js';
 import { initServices } from './modules/services.js';
 import { initRecords } from './modules/records.js';
 
+export const state = {
+    selectedDate: new Date().toISOString().split('T')[0], 
+};
+
 if (localStorage.getItem('role') === 'Superadmin') {
     import('./modules/admin.js').then(module => {
         module.initAdmin();
@@ -163,9 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-
-
-
 document.addEventListener('DOMContentLoaded', initScheduleTable);
 
 function initScheduleTable() {
@@ -185,45 +186,15 @@ function generateScheduleHeader(masters) {
     });
 }
 
-function syncRecordsToClientSchedule() {
-    const records = JSON.parse(localStorage.getItem('records')) || [];
-    let clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
 
-    records.forEach(record => {
-        const formattedRecord = {
-            master: record.мастер_имя || record.master,
-            time: record.дата_время.split(" ")[1],
-            client: record.клиент_имя || record.client,
-            service: record.услуга_название || record.service,
-            date: record.дата_время.split(" ")[0]
-        };
-
-        const exists = clientScheduleRecords.some(item =>
-            item.master === formattedRecord.master &&
-            item.date === formattedRecord.date &&
-            item.time === formattedRecord.time &&
-            item.client === formattedRecord.client &&
-            item.service === formattedRecord.service
-        );
-
-        if (!exists) {
-            clientScheduleRecords.push(formattedRecord);
-        }
-    });
-
-    localStorage.setItem('clientScheduleRecords', JSON.stringify(clientScheduleRecords));
-}
-
-
-
-syncRecordsToClientSchedule();
-
-
-function generateScheduleBody(masters) {
+export function generateScheduleBody(masters) {
     const scheduleBody = document.getElementById('scheduleBody');
     const startTime = 9;
     const endTime = 19;
     const interval = 30;
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 30); 
 
     for (let hour = startTime; hour < endTime; hour++) {
         for (let minute = 0; minute < 60; minute += interval) {
@@ -239,8 +210,14 @@ function generateScheduleBody(masters) {
                 cell.classList.add('schedule-cell');
                 cell.dataset.time = timeText;
                 cell.dataset.master = master.имя;
+
                 
-                cell.addEventListener('click', () => handleCellClick(cell));
+                const cellDateTime = new Date(`${state.selectedDate}T${timeText}`);
+                if (cellDateTime < today || cellDateTime > maxDate) {
+                    cell.classList.add('disabled-cell');
+                } else {
+                    cell.addEventListener('click', () => handleCellClick(cell));
+                }
 
                 row.appendChild(cell);
             });
@@ -249,74 +226,102 @@ function generateScheduleBody(masters) {
     }
 }
 
-const STORAGE_KEY = 'clientScheduleRecords';
 
-function saveClientScheduleRecord(master, time, client, service, date, isEdit = false) {
-    console.log("Сохранение записи для clientScheduleRecords:", { master, time, client, service, date });
-    let clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
+function getNextRecordId() {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    return records.length > 0 ? Math.max(...records.map(r => parseInt(r.запись_id, 10))) + 1 : 1;
+}
+
+function getMasterIdByName(masterName) {
+    const masters = JSON.parse(localStorage.getItem('masters')) || [];
+    const master = masters.find(m => m.имя === masterName);
+    return master ? master.мастер_id : null; 
+}
+
+function getServiceIdByName(serviceName) {
+    const services = JSON.parse(localStorage.getItem('services')) || [];
+    const service = services.find(s => s.название === serviceName);
+    return service ? service.услуга_id : null; 
+}
+
+
+
+function saveRecord(master, time, client, phone, service, date, isEdit = false) {
+    let records = JSON.parse(localStorage.getItem('records')) || [];
+
+    
+    function getServicePriceByName(serviceName) {
+        const services = JSON.parse(localStorage.getItem('services')) || [];
+        const service = services.find(s => s.название === serviceName);
+        return service ? service.цена : null; 
+    }
+
+    const servicePrice = getServicePriceByName(service); 
 
     if (isEdit) {
         
-        clientScheduleRecords = clientScheduleRecords.map(record => {
-            if (record.master === master && record.date === date && record.time === time) {
-                
-                return { ...record, client, service };
+        records = records.map(record => {
+            if (
+                record.мастер_имя === master &&
+                record.дата_время.split(" ")[0] === date &&
+                record.дата_время.split(" ")[1] === time
+            ) {
+                return {
+                    ...record,
+                    клиент_имя: client,
+                    клиент_телефон: phone,
+                    услуга_название: service,
+                    услуга_цена: servicePrice 
+                };
             }
             return record;
         });
     } else {
         
-        clientScheduleRecords = clientScheduleRecords.filter(record => 
-            !(record.master === master && record.time === time && record.date === date)
-        );
-        
-        
-        clientScheduleRecords.push({ master, time, client, service, date });
+        records.push({
+            запись_id: getNextRecordId().toString(), 
+            клиент_имя: client,
+            клиент_телефон: phone,
+            клиент_email: '-', 
+            мастер_id: getMasterIdByName(master),
+            мастер_имя: master,
+            услуга_id: getServiceIdByName(service),
+            услуга_название: service,
+            услуга_цена: servicePrice, 
+            дата_время: `${date} ${time}`,
+            статус: 'Подтверждена'
+        });
     }
 
-    localStorage.setItem('clientScheduleRecords', JSON.stringify(clientScheduleRecords));
-    loadRecords(date); 
+    localStorage.setItem('records', JSON.stringify(records));
 }
 
 
 
-export function loadRecords(selectedDate) {
-    
-    const dateToLoad = selectedDate || new Date().toISOString().split('T')[0];
-    console.log("Загрузка записей для даты:", dateToLoad);
-
-    const clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
-    console.log("Все записи:", clientScheduleRecords);
+export function loadRecords(date) {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    const dateToLoad = date || new Date().toISOString().split('T')[0];
 
     document.querySelectorAll('.schedule-cell').forEach(cell => {
-        cell.textContent = '';
+        cell.textContent = ''; 
     });
 
-    clientScheduleRecords.forEach(record => {
-        console.log("Проверка записи:", record);
-        
-        const recordDate = record.date.split(' ')[0];
-        
+    records.forEach(record => {
+        const recordDate = record.дата_время.split(" ")[0];
+        const recordTime = record.дата_время.split(" ")[1];
+
         if (recordDate === dateToLoad) {
-            console.log("Запись совпадает с выбранной датой:", record);
-            
-            const recordTime = record.time;
-            const cell = document.querySelector(`.schedule-cell[data-master="${record.master}"][data-time="${recordTime}"]`);
+            const cell = document.querySelector(
+                `.schedule-cell[data-master="${record.мастер_имя}"][data-time="${recordTime}"]`
+            );
             if (cell) {
-                cell.textContent = `${record.client} (${record.service})`;
+                cell.textContent = `${record.клиент_имя} (${record.услуга_название})`;
             }
         }
     });
 }
 
 document.addEventListener('DOMContentLoaded', loadRecords);
-
-window.addEventListener('storage', (event) => {
-    if (event.key === 'records') {
-        loadRecords();
-    }
-});
-
 
 
 const serviceSelect = document.getElementById('serviceSelect');
@@ -339,15 +344,23 @@ serviceSelect.addEventListener('change', () => {
 
 deleteClientButton.addEventListener('click', () => {
     if (selectedCell) {
-        deleteRecord(selectedCell.dataset.master, selectedCell.dataset.time, new Date().toISOString().split("T")[0]);
+        const masterName = selectedCell.dataset.master;
+        const time = selectedCell.dataset.time;
+
+        deleteRecord(masterName, time, state.selectedDate); 
+
         closeClientModal();
-        loadRecords(); 
+        loadRecords(state.selectedDate); 
     }
 });
 
 
-function populateServiceSelect() {
+
+function populateServiceSelect(masterSpecialization) {
     const services = JSON.parse(localStorage.getItem('services')) || [];
+    
+    
+    const filteredServices = services.filter(service => service.специализация === masterSpecialization);
     
     
     serviceSelect.innerHTML = `
@@ -355,9 +368,9 @@ function populateServiceSelect() {
     `;
 
     
-    services.forEach(service => {
+    filteredServices.forEach(service => {
         const option = document.createElement('option');
-        option.value = service.услуга_id; 
+        option.value = service.услуга_id;
         option.textContent = service.название; 
         serviceSelect.appendChild(option);
     });
@@ -369,38 +382,39 @@ function populateServiceSelect() {
     serviceSelect.appendChild(otherOption);
 }
 
-
 function deleteRecord(master, time, date) {
-    console.log(`Удаление записи: мастер=${master}, время=${time}, дата=${date}`);
+    console.log('Удаление записи:', { master, time, date });
 
-    
     let records = JSON.parse(localStorage.getItem('records')) || [];
-    records = records.filter(record => {
-        
-        const recordDate = record.дата_время ? record.дата_время.split(" ")[0] : record.date;
-        const recordTime = record.дата_время ? record.дата_время.split(" ")[1] : record.time;
-        return !(record.мастер_имя === master && recordDate === date && recordTime === time);
+    const updatedRecords = records.filter(record => {
+        const recordDate = record.дата_время.split(" ")[0];
+        const recordTime = record.дата_время.split(" ")[1];
+        const recordMaster = record.мастер_имя;
+
+        return !(recordMaster === master && recordTime === time && recordDate === date);
     });
-    localStorage.setItem('records', JSON.stringify(records));
-    console.log("Удалено из records:", records);
 
-    
-    let clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
-    clientScheduleRecords = clientScheduleRecords.filter(record => 
-        !(record.master === master && record.date === date && record.time === time)
-    );
-    localStorage.setItem('clientScheduleRecords', JSON.stringify(clientScheduleRecords));
-    console.log("Удалено из clientScheduleRecords:", clientScheduleRecords);
+    console.log('Обновлённые записи:', updatedRecords);
 
+    localStorage.setItem('records', JSON.stringify(updatedRecords));
     loadRecords(date); 
 }
 
 
 
 function handleCellClick(cell) {
+    const cellDateTime = new Date(`${state.selectedDate}T${cell.dataset.time}`);
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 30);
+
+    if (cellDateTime < today || cellDateTime > maxDate) {
+        alert('Вы не можете записаться на это время.');
+        return;
+    }
+
     openClientModal(cell);
 }
-
 
 const clientModal = document.getElementById('clientModal');
 const clientNameInput = document.getElementById('clientNameInput');
@@ -410,38 +424,62 @@ const errorMessage = document.getElementById('errorMessage');
 let selectedCell = null;
 
 function getRecordForCell(master, time) {
-    const records = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    return records.find(record => record.master === master && record.time === time);
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    return records.find(record => {
+        const recordTime = record.дата_время.split(" ")[1];
+        const recordMaster = record.мастер_имя;
+        return recordMaster === master && recordTime === time;
+    });
 }
+
 
 function openClientModal(cell) {
     selectedCell = cell;
+
+    
     clientNameInput.value = '';
+    document.getElementById('clientPhoneInput').value = '';
     serviceSelect.value = '';
     otherServiceContainer.style.display = 'none';
     otherServiceInput.value = '';
-
-    populateServiceSelect();
+    deleteClientButton.style.display = 'none'; 
 
     
-    const existingRecord = getRecordForCell(cell.dataset.master, cell.dataset.time);
+    const masterName = cell.dataset.master;
+    const masters = JSON.parse(localStorage.getItem('masters')) || [];
+    const selectedMaster = masters.find(master => master.имя === masterName);
+    const masterSpecialization = selectedMaster ? selectedMaster.специализация : '';
+
+    
+    populateServiceSelect(masterSpecialization);
+
+    
+    const time = cell.dataset.time;
+    const existingRecord = getRecordForCell(masterName, time);
+
     if (existingRecord) {
-        clientNameInput.value = existingRecord.client;
-        serviceSelect.value = existingRecord.service === 'other' ? 'other' : existingRecord.service;
-        if (existingRecord.service === 'other') {
-            otherServiceContainer.style.display = 'block';
-            otherServiceInput.value = existingRecord.customService;
-        }
-        deleteClientButton.style.display = 'inline-block'; 
+        
+        clientNameInput.value = existingRecord.клиент_имя || '';
+        document.getElementById('clientPhoneInput').value = existingRecord.клиент_телефон || '';
+        serviceSelect.value = getServiceIdByName(existingRecord.услуга_название) || '';
+
+        updateStatusStyles(existingRecord.статус);
+        
+        document.getElementById('recordStatus').textContent = existingRecord.статус || 'Неизвестно';
+        document.getElementById('recordId').textContent = existingRecord.запись_id || '-';
+        document.getElementById('recordDetails').style.display = 'block';
+
+        
+        deleteClientButton.style.display = 'inline-block';
     } else {
-        deleteClientButton.style.display = 'none'; 
+        
+        document.getElementById('recordDetails').style.display = 'none';
+        document.getElementById('recordStatus').textContent = '';
     }
 
     clientModal.style.display = 'flex';
     clientNameInput.focus();
 }
-
-
 
 function closeClientModal() {
     clientModal.style.display = 'none';
@@ -449,33 +487,61 @@ function closeClientModal() {
     errorMessage.style.display = 'none'; 
 }
 
+function updateStatusStyles(status) {
+    const statusElement = document.getElementById('recordStatus');
+
+    
+    statusElement.classList.remove('status-awaiting', 'status-confirmed', 'status-rejected');
+
+    
+    if (status === 'Ожидает подтверждения') {
+        statusElement.textContent = 'Ожидает подтверждения';
+        statusElement.classList.add('status-awaiting');
+    } else if (status === 'Подтверждена') {
+        statusElement.textContent = 'Подтверждена';
+        statusElement.classList.add('status-confirmed');
+    } else if (status === 'Отклонена') {
+        statusElement.textContent = 'Отклонена';
+        statusElement.classList.add('status-rejected');
+    } else {
+        statusElement.textContent = 'Неизвестный статус';
+    }
+}
 
 saveClientButton.addEventListener('click', () => {
     const clientName = clientNameInput.value.trim();
+    const clientPhone = document.getElementById('clientPhoneInput').value.trim();
     const selectedService = serviceSelect.value === 'other' ? otherServiceInput.value.trim() : serviceSelect.options[serviceSelect.selectedIndex].text;
+    const masterName = selectedCell.dataset.master;
+    const time = selectedCell.dataset.time;
 
-    if (clientName && selectedService && selectedCell) {
-        
-        const isEdit = !!getRecordForCell(selectedCell.dataset.master, selectedCell.dataset.time);
+    if (clientName && clientPhone && selectedService && selectedCell) {
+        if (!/^\+?\d{10,15}$/.test(clientPhone)) {
+            errorMessage.textContent = 'Введите корректный номер телефона.';
+            errorMessage.style.display = 'block';
+            return;
+        }
 
-        saveClientScheduleRecord(
-            selectedCell.dataset.master,
-            selectedCell.dataset.time,
-            clientName,
-            selectedService,
-            new Date().toISOString().split("T")[0],
-            isEdit 
-        );
-        
+        if (selectedService === "-- Выберите услугу --") {
+            errorMessage.textContent = 'Выберите услугу.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        const isEdit = !!getRecordForCell(masterName, time);
+
+        saveRecord(masterName, time, clientName, clientPhone, selectedService, state.selectedDate, isEdit);
+
         closeClientModal();
         errorMessage.style.display = 'none';
-        
-        loadRecords(new Date().toISOString().split("T")[0]); 
+
+        loadRecords(state.selectedDate); 
     } else {
-        errorMessage.textContent = 'Введите имя клиента и выберите услугу.';
+        errorMessage.textContent = 'Введите имя клиента, телефон и выберите услугу.';
         errorMessage.style.display = 'block';
     }
 });
+
 
 
 clientNameInput.addEventListener('input', () => {
