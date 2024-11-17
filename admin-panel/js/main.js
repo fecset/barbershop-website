@@ -107,21 +107,90 @@ document.addEventListener('click', function (event) {
 document.addEventListener('DOMContentLoaded', () => {
     
     const masters = JSON.parse(localStorage.getItem('masters')) || [];
-
     
     const mastersList = document.querySelector('.masters-list');
-
     
     mastersList.innerHTML = '';
 
-    
     masters.forEach(master => {
-        
         const listItem = document.createElement('li');
         listItem.textContent = `${master.имя} - ${master.график_работы}`;
+        
+        
+        listItem.addEventListener('click', () => {
+            openRecordModal(master.имя);
+        });
+
         mastersList.appendChild(listItem);
     });
 });
+
+function openRecordModal(masterName) {
+    const recordModal = document.getElementById('recordModal');
+    
+    
+    const masterNameElement = document.getElementById('mastersName');
+    if (masterNameElement) {
+        masterNameElement.textContent = masterName;
+    }
+
+    
+    const records = getRecordsForMaster(masterName);
+
+    
+    const recordList = document.getElementById('recordList');
+    recordList.innerHTML = ''; 
+
+    if (records.length === 0) {
+        
+        const noRecordsMessage = document.createElement('li');
+        noRecordsMessage.textContent = 'Записи отсутствуют';
+        noRecordsMessage.style.color = '#999'; 
+        noRecordsMessage.style.fontStyle = 'italic'; 
+        recordList.appendChild(noRecordsMessage);
+    } else {
+        
+        records.forEach((record, index) => {
+            const recordItem = document.createElement('li');
+
+            
+            const recordNumber = document.createElement('span');
+            recordNumber.className = 'record-number';
+            recordNumber.textContent = index + 1; 
+
+            
+            const recordText = document.createElement('span');
+            recordText.innerHTML = `<strong>Дата и время:</strong> ${record.дата_время}, <strong>Клиент:</strong> ${record.клиент_имя}, <strong>Услуга:</strong> ${record.услуга_название}`;
+
+            
+            recordItem.appendChild(recordNumber);
+            recordItem.appendChild(recordText);
+            
+            recordList.appendChild(recordItem);
+        });
+    }
+
+    
+    recordModal.style.display = 'block';
+
+    
+    document.querySelector('.close-button').onclick = function() {
+        recordModal.style.display = 'none';
+    };
+
+    
+    window.onclick = function(event) {
+        if (event.target === recordModal) {
+            recordModal.style.display = 'none';
+        }
+    };
+}
+
+function getRecordsForMaster(masterName) {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+    
+    return records.filter(record => record.мастер_имя === masterName);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -189,6 +258,7 @@ function generateScheduleHeader(masters) {
 
 export function generateScheduleBody(masters) {
     const scheduleBody = document.getElementById('scheduleBody');
+    scheduleBody.innerHTML = '';
     const startTime = 9;
     const endTime = 19;
     const interval = 30;
@@ -210,8 +280,8 @@ export function generateScheduleBody(masters) {
                 cell.classList.add('schedule-cell');
                 cell.dataset.time = timeText;
                 cell.dataset.master = master.имя;
+                cell.dataset.date = state.selectedDate; 
 
-                
                 const cellDateTime = new Date(`${state.selectedDate}T${timeText}`);
                 if (cellDateTime < today || cellDateTime > maxDate) {
                     cell.classList.add('disabled-cell');
@@ -249,17 +319,35 @@ function getServiceIdByName(serviceName) {
 function saveRecord(master, time, client, phone, service, date, isEdit = false) {
     let records = JSON.parse(localStorage.getItem('records')) || [];
 
-    
     function getServicePriceByName(serviceName) {
         const services = JSON.parse(localStorage.getItem('services')) || [];
         const service = services.find(s => s.название === serviceName);
         return service ? service.цена : null; 
     }
 
-    const servicePrice = getServicePriceByName(service); 
+    
+    let servicePrice = getServicePriceByName(service); 
+
+    
+    if (service === 'Другое') {
+        servicePrice = '-';
+    } else if (servicePrice === null) {
+        console.warn(`Цена для услуги "${service}" не найдена.`);
+        servicePrice = '0'; 
+    }
 
     if (isEdit) {
-        
+        const recordExists = records.some(record => 
+            record.мастер_имя === master &&
+            record.дата_время.split(" ")[0] === date &&
+            record.дата_время.split(" ")[1] === time
+        );
+
+        if (!recordExists) {
+            console.warn('Запись для редактирования не найдена');
+            return; 
+        }
+
         records = records.map(record => {
             if (
                 record.мастер_имя === master &&
@@ -277,7 +365,17 @@ function saveRecord(master, time, client, phone, service, date, isEdit = false) 
             return record;
         });
     } else {
-        
+        const duplicateRecord = records.some(record => 
+            record.мастер_имя === master &&
+            record.дата_время.split(" ")[0] === date &&
+            record.дата_время.split(" ")[1] === time
+        );
+
+        if (duplicateRecord) {
+            console.warn('Запись уже существует');
+            return; 
+        }
+
         records.push({
             запись_id: getNextRecordId().toString(), 
             клиент_имя: client,
@@ -293,9 +391,12 @@ function saveRecord(master, time, client, phone, service, date, isEdit = false) 
         });
     }
 
-    localStorage.setItem('records', JSON.stringify(records));
+    try {
+        localStorage.setItem('records', JSON.stringify(records));
+    } catch (error) {
+        console.error('Ошибка при сохранении записей в localStorage:', error);
+    }
 }
-
 
 
 export function loadRecords(date) {
@@ -383,8 +484,6 @@ function populateServiceSelect(masterSpecialization) {
 }
 
 function deleteRecord(master, time, date) {
-    console.log('Удаление записи:', { master, time, date });
-
     let records = JSON.parse(localStorage.getItem('records')) || [];
     const updatedRecords = records.filter(record => {
         const recordDate = record.дата_время.split(" ")[0];
@@ -393,8 +492,6 @@ function deleteRecord(master, time, date) {
 
         return !(recordMaster === master && recordTime === time && recordDate === date);
     });
-
-    console.log('Обновлённые записи:', updatedRecords);
 
     localStorage.setItem('records', JSON.stringify(updatedRecords));
     loadRecords(date); 
@@ -409,7 +506,6 @@ function handleCellClick(cell) {
     maxDate.setDate(today.getDate() + 30);
 
     if (cellDateTime < today || cellDateTime > maxDate) {
-        alert('Вы не можете записаться на это время.');
         return;
     }
 
@@ -423,12 +519,13 @@ const errorMessage = document.getElementById('errorMessage');
 
 let selectedCell = null;
 
-function getRecordForCell(master, time) {
+function getRecordForCell(master, time, date) {
     const records = JSON.parse(localStorage.getItem('records')) || [];
     return records.find(record => {
         const recordTime = record.дата_время.split(" ")[1];
+        const recordDate = record.дата_время.split(" ")[0]; 
         const recordMaster = record.мастер_имя;
-        return recordMaster === master && recordTime === time;
+        return recordMaster === master && recordTime === time && recordDate === date; 
     });
 }
 
@@ -455,7 +552,8 @@ function openClientModal(cell) {
 
     
     const time = cell.dataset.time;
-    const existingRecord = getRecordForCell(masterName, time);
+    const date = cell.dataset.date; 
+    const existingRecord = getRecordForCell(masterName, time, date); 
 
     if (existingRecord) {
         

@@ -113,12 +113,10 @@ export function initRecords() {
     function deleteFromClientScheduleRecords(master, time, date) {
         let clientScheduleRecords = JSON.parse(localStorage.getItem('clientScheduleRecords')) || [];
     
-        // Удаляем запись из clientScheduleRecords на основе совпадения по мастеру, времени и дате
         clientScheduleRecords = clientScheduleRecords.filter(record =>
             !(record.master === master && record.time === time && record.date === date)
         );
     
-        // Сохраняем обновленный список в localStorage
         localStorage.setItem('clientScheduleRecords', JSON.stringify(clientScheduleRecords));
     }
     
@@ -145,12 +143,8 @@ export function initRecords() {
                 records = records.filter(record => record.запись_id !== recordId);
                 saveRecordsToLocalStorage(records);
         
-
-                console.log('Запись удалена из records:', recordId);
-
                 if (record) {
                     deleteFromClientScheduleRecords(recordId);
-                    console.log('Запись также удалена из clientScheduleRecords');
                 }
 
                 loadRecords();
@@ -180,8 +174,6 @@ export function initRecords() {
             const confirmButton = row.querySelector('.record-button--confirm');
             const rejectButton = row.querySelector('.record-button--reject');
 
-            console.log(`Нажата кнопка в таблице "Главная" с ID: ${recordId}`);
-
             if (button.classList.contains('record-button--info')) {
                 showRecordDetails(recordId);
             } else if (button.classList.contains('record-button--confirm')) {
@@ -189,7 +181,6 @@ export function initRecords() {
                 statusCell.classList.remove('status-awaiting', 'status-rejected');
                 statusCell.classList.add('status-confirmed');
                 updateRecordStatus(recordId, 'Подтверждена');
-                console.log('Статус обновлён на "Подтверждена" для записи:', recordId);
                 row.remove();
                 refreshTables();
             } else if (button.classList.contains('record-button--reject')) {
@@ -197,7 +188,6 @@ export function initRecords() {
                 statusCell.classList.remove('status-awaiting', 'status-confirmed');
                 statusCell.classList.add('status-rejected');
                 updateRecordStatus(recordId, 'Отклонена');
-                console.log('Статус обновлён на "Отклонена" для записи:', recordId);
                 row.remove();
                 refreshTables();
             }
@@ -215,18 +205,12 @@ export function initRecords() {
 
         records = records.map(record => {
             if (record.запись_id === recordId) {
-                console.log(`Updating status for record: ${record.запись_id}`);
                 return { ...record, статус: status };
             }
             return record;
         });
 
         saveRecordsToLocalStorage(records);
-
-
-        console.log('Updated records saved to localStorage:', JSON.parse(localStorage.getItem('records')));
-
-
         refreshTables();
     }
 

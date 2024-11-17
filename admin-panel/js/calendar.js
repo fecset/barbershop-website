@@ -17,10 +17,7 @@ let calA = new Calendar({
             state.selectedDate = new Date(currentDate.getTime() - currentDate.getTimezoneOffset() * 60000)
                 .toISOString()
                 .split('T')[0]; 
-
-            console.log("Выбрана дата в календаре:", state.selectedDate);
-
-            
+  
             document.getElementById('scheduleBody').innerHTML = '';  
 
             
@@ -35,8 +32,5 @@ let calA = new Calendar({
         } else {
             console.error("Invalid date value:", currentDate);
         }
-    },
-    monthChanged: (currentDate, events) => {
-        console.log("Изменен месяц", currentDate, events);
     }
 });

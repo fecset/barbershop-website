@@ -334,6 +334,11 @@ body {
     background-color: #666b70;
 }
 
+.time-slot.selected {
+    background-color: #398469; /* Зеленый цвет для выделенного слота */
+    color: white; /* Белый текст для контраста */
+}
+
 .selected-time {
     margin-top: 15px;
     font-weight: bold;

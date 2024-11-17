@@ -233,20 +233,23 @@ export function initServices() {
     });
     
     window.addEventListener('click', function(event) {
-        if (event.target === document.getElementById('addServiceModal')) {  // Проверяем, был ли клик на фоновом слое модального окна
-            addServiceModal.style.display = 'none'; // Закрыть окно
+        if (event.target === document.getElementById('addServiceModal')) {  
+            addServiceModal.style.display = 'none'; 
         }
     });
     
     document.getElementById('saveNewService').addEventListener('click', function() {
         const newServiceName = document.getElementById('newServiceName').value.trim();
         const newServicePrice = document.getElementById('newServicePrice').value.trim();
-        const serviceSpecialization = document.getElementById('serviceSpecialization').value; 
+        const serviceSpecialization = document.getElementById('serviceSpec').value; 
         const priceError = document.getElementById('priceError');
         const nameError = document.getElementById('nameError');
+        const specializationError = document.getElementById('specializationError'); 
     
+        
         priceError.textContent = '';
         nameError.textContent = '';
+        specializationError.textContent = '';
     
         
         if (!newServiceName) {
@@ -260,6 +263,12 @@ export function initServices() {
         
         if (!newServicePrice || isNaN(newServicePrice) || newServicePrice <= 0) {
             priceError.textContent = 'Введите корректную цену.';
+            return;
+        }
+    
+        
+        if (serviceSpecialization === "") { 
+            specializationError.textContent = 'Выберите специализацию.';
             return;
         }
     
@@ -289,12 +298,13 @@ export function initServices() {
                 </button>
             </td>
         `;
+        
         servicesTableBody.appendChild(row);
     
         
         document.getElementById('newServiceName').value = '';
         document.getElementById('newServicePrice').value = '';
-        document.getElementById('serviceSpecialization').value = 'Стрижка и укладка'; 
+        document.getElementById('serviceSpec').value = ''; 
         addServiceModal.style.display = 'none'; 
     
         lastServiceId = newServiceId;

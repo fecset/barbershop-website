@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="css/records.css">
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/calendar.css">
-    <script defer type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
     <!-- Календарь -->
     <script src="https://cdn.jsdelivr.net/npm/color-calendar@1.0.5/dist/bundle.js"></script>
 
@@ -24,12 +24,10 @@
     <link rel="stylesheet" href="css/calendar/theme-glass.css">
     <link
       href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet">
     <link
       href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet">
 </head>
 
 <body class="page">
@@ -41,7 +39,7 @@
     
     <header class="header">
         <div class="header__top">
-            <img class="header__icon" src="img/logo.svg">
+            <img class="header__icon" src="img/logo.svg" alt="logo">
             <h1 class="header__title">Админ-панель "Бородатый Гуру"</h1>
         </div>
         <div class="header__login">
@@ -136,8 +134,10 @@
             <!-- Модальное окно для ввода клиента -->
             <div id="clientModal" class="modal">
                 <div class="modal-content">
-                    <span id="closeModal" class="close">&times;</span>
-                    <h2>Запись клиента</h2>
+                    <div class="modal-header">
+                        <h2>Запись клиента</h2>
+                    </div>
+
 
                     <div id="recordDetails" style="display: none;">
                         <p><strong>Статус:</strong> <span id="recordStatus"></span></p>
@@ -171,6 +171,20 @@
                 </div>
             </div>
 
+
+            <div id="recordModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="mastersName">Имя мастера</h2>
+                        <img src="img/close.svg" alt="close" class="close-button">
+                    </div>
+
+
+                    <p>Список записей: </p>
+                    <ul id="recordList"></ul>
+                </div>
+            </div>
+
             <section class="new-records" style="display: none;">
                 <div class="new-records_header main-header">
                     <h2 class="new-records__title main-title">Новые записи</h2>
@@ -187,6 +201,7 @@
                     </tbody>
                 </table>
             </section>
+
             <div class="section-div">
                 <section class="masters">
                     <div class="masters_header main-header">
@@ -211,11 +226,11 @@
         <script type="module" src="js/calendar.js"></script>
 
         <!-- Окно Услуги -->
-        <main class="main-services main" id="servicesSection" style="display: none;">
+        <div class="main-services main" id="servicesSection" style="display: none;">
             <div class="services_header">
                 <h2 class="services__title">Управление услугами</h2>
             </div>
-            <section class="services">
+            <div class="services">
                 <table class="services__table">
                     <thead>
                         <tr>
@@ -235,88 +250,87 @@
 
                     </tbody>
                 </table>
-            </section>
+            </div>  
+        </div>
 
-            <!-- Модальное окно Настройки -->
-            <div id="settingsModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header"> 
-                        <h2>Настройки</h2> 
-                        <img class="close" id="closeSettingsModal" src="img/close.svg"></img> 
-                    </div>
-                    <table>
-                        <tr>
-                            <td>ID</td>
-                            <td>
-                                <span id="serviceId"></span>
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Название</td>
-                            <td>
-                                <span id="serviceName" contenteditable="false"></span>
-                            </td>
-                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
-                        </tr>
-                        <tr>
-                            <td>Специализация</td>
-                            <td>
-                                <select id="serviceSpecialization">
-                                    <option value="Стрижка и укладка">Стрижка и укладка</option>
-                                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
-                                </select>
-                                <td></td>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Стоимость</td>
-                            <td>
-                                <span id="priceValue" contenteditable="false"></span> ₽
-                            </td>
-                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
-                        </tr>
-                    </table>
-                    <button id="saveSettings">Сохранить</button>
+        <!-- Модальное окно Настройки -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2>Настройки</h2> 
+                    <img class="close" id="closeSettingsModal" src="img/close.svg" alt="close">
                 </div>
+                <table>
+                    <tr>
+                        <td>ID</td>
+                        <td>
+                            <span id="serviceId"></span>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Название</td>
+                        <td>
+                            <span id="serviceName" contenteditable="false"></span>
+                        </td>
+                        <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                    </tr>
+                    <tr>
+                        <td>Специализация</td>
+                        <td>
+                            <select id="serviceSpecialization">
+                                <option value="Стрижка и укладка">Стрижка и укладка</option>
+                                <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                            </select>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Стоимость</td>
+                        <td>
+                            <span id="priceValue" contenteditable="false"></span> ₽
+                        </td>
+                        <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                    </tr>
+                </table>
+                <button id="saveSettings">Сохранить</button>
             </div>
+        </div>
 
-            <!-- Модальное окно Добавление услуги -->
-            <div id="addServiceModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header"> 
-                        <h2>Добавить услугу</h2>
-                        <img class="close" id="closeAddServiceModal" src="img/close.svg"></img> 
-                    </div>
-            
-                    <label for="newServiceName">Название:</label>
-                    <input type="text" id="newServiceName" class="newService_input" required maxlength="30">
-                    <span id="nameError" class="error-message"></span>
-                    <br>
-            
-                    <label for="newServicePrice">Цена:</label>   
-                    <input type="number" id="newServicePrice" class="newService_input" required>
-                    <span id="priceError" class="error-message"></span><br>
-            
-                    <!-- Добавляем поле для специализации -->
-                    <label for="serviceSpecialization">Специализация:</label>
-                    <select id="serviceSpecialization" required>
-                        <option value="Стрижка и укладка">Стрижка и укладка</option>
-                        <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
-                    </select><br>
-            
-                    <button id="saveNewService">Сохранить</button>
+        <!-- Модальное окно Добавление услуги -->
+        <div id="addServiceModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2>Добавить услугу</h2>
+                    <img class="close" id="closeAddServiceModal" src="img/close.svg" alt="close">
                 </div>
+        
+                <label for="newServiceName">Название:</label>
+                <input type="text" id="newServiceName" class="newService_input" required maxlength="30">
+                <span id="nameError" class="error-message"></span>
+                <br>
+        
+                <label for="newServicePrice">Цена:</label>   
+                <input type="number" id="newServicePrice" class="newService_input" required>
+                <span id="priceError" class="error-message"></span><br>
+        
+                <label for="serviceSpec">Специализация:</label>
+                <select id="serviceSpec" required>
+                    <option value="" disabled selected>Выберите специализацию</option>
+                    <option value="Стрижка и укладка">Стрижка и укладка</option>
+                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                </select><br>
+                <span id="specializationError" class="error-message"></span><br>
+                <button id="saveNewService">Сохранить</button>
             </div>
-            
-        </main>
+        </div>
 
         <!-- Окно Мастера -->
-        <main class="main-masters main" id="mastersSection" style="display: none;">
+        <div class="main-masters main" id="mastersSection" style="display: none;">
             <div class="masters-header">
                 <h2 class="masters-title">Список мастеров</h2>
             </div>
-            <section class="masters-content">
+            <div class="masters-content">
                 <table class="masters-table">
                     <thead>
                         <tr>
@@ -335,54 +349,53 @@
                     <tbody id="mastersTableBody">
                     </tbody>
                 </table>
-            </section>
-            
-
-            <!-- Модальное окно настройки мастеров -->
-            <div id="masterSettingsModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header"> 
-                        <h2 class="modal-title">Настройки</h2> 
-                        <img class="close" id="closeMasterModal" src="img/close.svg"> 
-                    </div>
-                    <table class="modal-table">
-                        <tr>
-                            <td class="modal-label">ID</td>
-                            <td><span id="masterId" contenteditable="false">001</span></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td class="modal-label">Имя</td>
-                            <td><span id="masterName" contenteditable="false">Иван</span></td>
-                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
-                        </tr>
-                        <tr>
-                            <td class="modal-label">Специализация</td>
-                            <td>
-                                <select id="editMasterSpecialization" required>
-                                    <option value="Стрижка и укладка">Стрижка и укладка</option>
-                                    <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
-                                    <option value="Уборка">Уборка</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="modal-label">График</td>
-                            <td><span id="masterSchedule" contenteditable="false">Пн-Пт 9:00-18:00</span></td>
-                            <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
-                        </tr>
-                    </table>
-                    <button id="saveMasterSettings" class="modal-save-button">Сохранить</button>
-                </div>
             </div>
-        </main>
-
+        </div>
+        <!-- Модальное окно настройки мастеров -->
+        <div id="masterSettingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header"> 
+                    <h2 class="modal-title">Настройки</h2> 
+                    <img class="close" id="closeMasterModal" src="img/close.svg" alt="close"> 
+                </div>
+                <table class="modal-table">
+                    <tr>
+                        <td class="modal-label">ID</td>
+                        <td><span id="masterId" contenteditable="false">001</span></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="modal-label">Имя</td>
+                        <td><span id="masterName" contenteditable="false">Иван</span></td>
+                        <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                    </tr>
+                    <tr>
+                        <td class="modal-label">Специализация</td>
+                        <td>
+                            <select id="editMasterSpecialization" required>
+                                <option value="" disabled selected>Выберите специализацию</option>
+                                <option value="Стрижка и укладка">Стрижка и укладка</option>
+                                <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
+                                <option value="Уборка">Уборка</option>
+                            </select>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="modal-label">График</td>
+                        <td><span id="masterSchedule" contenteditable="false">Пн-Пт 9:00-18:00</span></td>
+                        <td><img class="edit-icon" src="img/edit.svg" alt="Edit"></td>
+                    </tr>
+                </table>
+                <button id="saveMasterSettings" class="modal-save-button">Сохранить</button>
+            </div>
+        </div>
         <!-- Модальное окно добавления мастера -->
         <div id="addMasterModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header"> 
                     <h2>Добавить мастера</h2>
-                    <img class="close" id="closeAddMasterModal" src="img/close.svg"></img> 
+                    <img class="close" id="closeAddMasterModal" src="img/close.svg" alt="close">
                 </div>
                 <label for="newMasterName">Имя:</label>
                 <input type="text" id="newMasterName" class="newMaster_input" required maxlength="30">
@@ -390,6 +403,7 @@
                 <br>
                 <label for="newMasterSpecialization">Специализация:</label>
                 <select id="newMasterSpecialization" required>
+                    <option value="" disabled selected>Выберите специализацию</option>
                     <option value="Стрижка и укладка">Стрижка и укладка</option>
                     <option value="Бритьё и уход за бородой">Бритьё и уход за бородой</option>
                     <option value="Уборка">Уборка</option>
@@ -406,11 +420,11 @@
 
 
         <!-- Окно Записей -->
-        <main class="main-records" id="recordsSection" style="display: none;">
+        <div class="main-records" id="recordsSection" style="display: none;">
             <div class="records-header">
                 <h2 class="records-title">Записи</h2>
             </div>
-            <section class="records-content">
+            <div class="records-content">
                 <table class="records-table">
                     <thead>
                         <tr>
@@ -425,15 +439,15 @@
                         
                     </tbody>
                 </table>                
-            </section>
-        </main>
+            </div>
+        </div>
 
         <!-- Модальное окно для подробностей записи -->
         <div id="detailsModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header"> 
                     <h2>Подробнее</h2>
-                    <img class="close" id="closeDetailsModal" src="img/close.svg"> 
+                    <img class="close" id="closeDetailsModal" src="img/close.svg" alt="close"> 
                 </div>
                 <table>
                     <tr>
@@ -477,11 +491,11 @@
         </div>
 
                 <!-- Окно Администраторы -->
-        <main class="main-admins main" id="adminSection" style="display: none;">
+        <div class="main-admins main" id="adminSection" style="display: none;">
             <div class="admins-header">
                 <h2 class="admins-title">Список администраторов</h2>
             </div>
-            <section class="admins-content">
+            <div class="admins-content">
                 <table class="admins-table">
                     <thead>
                         <tr>
@@ -500,14 +514,14 @@
                     <tbody id="adminsTableBody">
                     </tbody>
                 </table>
-            </section>
+            </div>
 
             <!-- Модальное окно настройки администратора -->
             <div id="adminSettingsModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header"> 
                         <h2 class="modal-title">Настройки администратора</h2> 
-                        <img class="close" id="closeAdminModal" src="img/close.svg"> 
+                        <img class="close" id="closeAdminModal" src="img/close.svg" alt="close"> 
                     </div>
                     <table class="modal-table">
                         <tr>
@@ -548,14 +562,14 @@
             </div>
 
             
-        </main>
+        </div>
 
         <!-- Модальное окно добавления администратора -->
         <div id="addAdminModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header"> 
                     <h2>Добавить администратора</h2>
-                    <img class="close" id="closeAddAdminModal" src="img/close.svg"> 
+                    <img class="close" id="closeAddAdminModal" src="img/close.svg" alt="close"> 
                 </div>
                 <label for="newAdminName">Имя:</label>
                 <input type="text" id="newAdminName" class="newAdmin_input" required maxlength="30">

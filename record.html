@@ -9,7 +9,7 @@
 </head>
 <body>
     <div style="display: flex; align-items: center; width: 34%;">
-        <p href="#" class="back" style="display: flex; align-items: center;" onclick="window.location.href='index.html'">
+        <p class="back" style="display: flex; align-items: center;" onclick="window.location.href='index.html'">
             <img src="img/left-arrow.svg" alt="back" style="margin-right: 15px; text-decoration: none;"> Назад
         </p>
     </div>
@@ -39,10 +39,8 @@
             <small class="error-message" id="phone-error"></small>
         </div>
 
-        <div class="select-group">
-
         <div class="form-group">
-            <label for="service">Выберите услугу</label>
+            <label>Выберите услугу</label>
             <div class="custom-dropdown" id="service">
                 <div class="selected">Выберите услугу</div>
                 <div class="options">
@@ -55,7 +53,7 @@
         </div>
 
         <div class="form-group">
-            <label for="master">Выберите мастера</label>
+            <label>Выберите мастера</label>
             <div class="custom-dropdown" id="master">
                 <div class="selected">Выберите мастера</div>
                 <div class="options">
@@ -66,8 +64,8 @@
         </div>
 
         <div class="form-group">
-            <label for="date-time">Выберите дату и время</label>
-            <input type="date" id="date-picker" />
+            <label>Выберите дату и время</label>
+            <input type="date" id="date-picker">
             <div id="time-slots" class="custom-dropdown disabled" style="min-height: 50px;">
 
             </div>

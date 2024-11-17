@@ -61,7 +61,6 @@ export function initAdmin() {
         const toggleButton = document.querySelector(`#togglePassword-${index} img`);
     
         if (!passwordSpan) {
-            console.error(`Элемент passwordSpan с индексом ${index} не найден`);
             return;
         }
     
@@ -70,7 +69,6 @@ export function initAdmin() {
         const admin = admins[index];
     
         if (!admin) {
-            console.error(`Администратор с индексом ${index} не найден`);
             return;
         }
     
@@ -175,7 +173,6 @@ export function initAdmin() {
     
                 const admin = getAdminsFromLocalStorage().find(admin => String(admin.id) === adminId);
                 if (!admin) {
-                    console.error(`Администратор с ID ${adminId} не найден.`);
                     return;
                 }
     

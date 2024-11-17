@@ -171,6 +171,7 @@
     font-weight: bold; 
     height: 35px;
     position: relative; 
+    width: 100%;
 }
 
 .modal-header h2{
@@ -309,6 +310,21 @@
     outline: none;
     cursor: pointer;
 }
+
+#serviceSpec{
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    color: #333;
+    background-color: #e2e2e2;
+    border: none;
+    border-radius: 5px;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+
 
 
 
