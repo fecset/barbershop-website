@@ -521,3 +521,38 @@
 .color-calendar.basic.color-calendar--small .calendar__body .calendar__picker .calendar__picker-year-option::after {
   height: 40px;
 }
+
+@media (max-width: 1700px) {
+  #calendar-a {
+      font-size: 0.8rem; /* Уменьшенный размер шрифта */
+  }
+
+  #calendar-a .calendar__header {
+      padding: 10px 10px 0 10px;
+      grid-template-columns: repeat(7, minmax(25px, 41px)); /* Уменьшенные размеры сетки */
+  }
+
+  #calendar-a .calendar__monthyear {
+      font-size: 1.2rem;
+  }
+
+  #calendar-a .calendar__arrow-inner,
+  #calendar-a .calendar__arrow-inner::after {
+      width: 30px;
+      height: 30px;
+  }
+
+  #calendar-a .calendar__body {
+      padding: 0 10px 10px 10px;
+  }
+
+  #calendar-a .calendar__weekdays {
+      grid-template-columns: repeat(7, minmax(25px, 41px));
+      margin-bottom: 0;
+  }
+
+  #calendar-a .calendar__days {
+      grid-template-columns: repeat(7, minmax(25px, 41px));
+      grid-template-rows: repeat(6, minmax(30px, 35px));
+  }
+}

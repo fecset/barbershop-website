@@ -1,7 +1,7 @@
 .calendar_container{
     display: flex;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
 }
 #calendar-a .color-calendar.glass{
     --cal-drop-shadow: 0;
@@ -9,3 +9,11 @@
 #calendar-a .calendar__body{
     border-radius: 0px;
 }
+
+@media (max-width: 1700px) {
+    .calendar_container{
+        padding: 8px;
+    }
+  
+}
+  

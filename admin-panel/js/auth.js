@@ -10,7 +10,6 @@ async function loadAdmins() {
     return [];
 }
 
-
 async function loadSuperAdmins() {
     
     const response = await fetch('db/barbershop_db.json');

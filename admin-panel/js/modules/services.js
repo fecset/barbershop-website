@@ -332,7 +332,6 @@ export function initServices() {
         if (this.value > maxValue) {
             priceError.textContent = `Цена не может превышать ${maxValue} ₽.`;
             this.value = maxValue; 
-            console.log(this.value);
         } else {
             priceError.textContent = '';
         }

@@ -245,7 +245,6 @@ function initScheduleTable() {
     loadRecords();
 }
 
-
 function generateScheduleHeader(masters) {
     const mastersRow = document.getElementById('mastersRow');
     masters.forEach(master => {
@@ -254,7 +253,6 @@ function generateScheduleHeader(masters) {
         mastersRow.appendChild(th);
     });
 }
-
 
 export function generateScheduleBody(masters) {
     const scheduleBody = document.getElementById('scheduleBody');
